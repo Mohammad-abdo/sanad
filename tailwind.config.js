@@ -83,7 +83,10 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
-        arabic: ['Cairo', 'Tajawal', 'Arial', 'sans-serif'],
+        arabic: ['Alexandria', 'Cairo', 'Tajawal', 'Arial', 'sans-serif'],
+        alexandria: ['Alexandria', 'Cairo', 'Tajawal', 'sans-serif'],
+        cairo: ['Cairo', 'Tajawal', 'sans-serif'],
+        tajawal: ['Tajawal', 'Arial', 'sans-serif'],
       },
     },
   },
