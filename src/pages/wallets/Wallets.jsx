@@ -4,8 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, DollarSign, Wallet } from 'lucide-react';
 import DataTable from '../../components/common/DataTable';
 import { wallets } from '../../api/admin';
+import { useAppCurrency } from '../../utils/currency';
 
 const Wallets = () => {
+  const { formatMoney } = useAppCurrency();
   const navigate = useNavigate();
   const [page] = useState(1);
   const limit = 20;
@@ -52,7 +54,7 @@ const Wallets = () => {
             <DollarSign className="text-green-600" size={18} />
           </div>
           <div>
-            <p className="text-lg font-bold text-gray-900">{(row.walletBalance || 0).toFixed(2)} ج.م</p>
+            <p className="text-lg font-bold text-gray-900">{formatMoney(row.walletBalance || 0)}</p>
             <p className="text-xs text-gray-500">الرصيد المتاح</p>
           </div>
         </div>
@@ -63,7 +65,7 @@ const Wallets = () => {
       accessor: 'totalEarnings',
       render: (row) => (
         <span className="text-sm font-semibold text-green-700">
-          {(row.totalEarnings || 0).toFixed(2)} ج.م
+          {formatMoney(row.totalEarnings || 0)}
         </span>
       ),
     },
@@ -72,7 +74,7 @@ const Wallets = () => {
       accessor: 'totalWithdrawals',
       render: (row) => (
         <span className="text-sm font-semibold text-red-700">
-          {(row.totalWithdrawals || 0).toFixed(2)} ج.م
+          {formatMoney(row.totalWithdrawals || 0)}
         </span>
       ),
     },
@@ -113,7 +115,7 @@ const Wallets = () => {
           <div className="w-16 h-16 rounded-xl bg-green-50 border border-green-200 flex items-center justify-center mx-auto mb-3">
             <DollarSign className="text-green-600" size={32} />
           </div>
-          <p className="text-3xl font-bold text-gray-900 mb-1">{totalBalance.toFixed(2)} ج.م</p>
+          <p className="text-3xl font-bold text-gray-900 mb-1">{formatMoney(totalBalance)}</p>
           <p className="text-sm text-gray-500">إجمالي الرصيد</p>
         </div>
         <div className="glass-card rounded-xl p-6 text-center border border-gray-200">

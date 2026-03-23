@@ -19,8 +19,10 @@ import {
   ArrowUp,
   ArrowDown,
 } from 'lucide-react';
+import { useAppCurrency } from '../../utils/currency';
 
 const WalletDetails = () => {
+  const { formatMoney } = useAppCurrency();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -134,7 +136,7 @@ const WalletDetails = () => {
           </div>
           <div>
             <p className={`text-lg font-bold ${row.type === 'PAYMENT' ? 'text-green-700' : 'text-red-700'}`}>
-              {(row.amount || 0).toFixed(2)} ج.م
+              {formatMoney(row.amount || 0)}
             </p>
             <p className="text-xs text-gray-500">{row.type === 'PAYMENT' ? 'مبلغ الدفع' : 'مبلغ السحب'}</p>
           </div>
@@ -152,10 +154,10 @@ const WalletDetails = () => {
         return (
           <div>
             <p className="text-sm font-semibold text-red-700">
-              {(row.systemShare || 0).toFixed(2)} ج.م
+              {formatMoney(row.systemShare || 0)}
             </p>
             <p className="text-xs text-gray-500">
-              للطبيب: {(row.doctorShare || 0).toFixed(2)} ج.م
+              للطبيب: {formatMoney(row.doctorShare || 0)}
             </p>
           </div>
         );
@@ -300,7 +302,7 @@ const WalletDetails = () => {
             <div className="flex items-center gap-4 flex-wrap mb-3">
               <h1 className="text-4xl font-bold text-gray-900">{doctor.name || '-'}</h1>
               <span className="px-4 py-2 rounded-full text-sm font-semibold border border-gray-200 text-gray-700">
-                {summary.walletBalance ? `${summary.walletBalance.toFixed(2)} ج.م` : '0.00 ج.م'}
+                {formatMoney(summary.walletBalance || 0)}
               </span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -308,7 +310,7 @@ const WalletDetails = () => {
                 <DollarSign className="text-green-600" size={20} />
                 <div>
                   <p className="text-sm text-gray-600">إجمالي التحصيل (قبل نسبة النظام)</p>
-                  <p className="text-xl font-bold text-green-700">{(summary.grossEarnings || 0).toFixed(2)} ج.م</p>
+                  <p className="text-xl font-bold text-green-700">{formatMoney(summary.grossEarnings || 0)}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
@@ -316,7 +318,7 @@ const WalletDetails = () => {
                 <div>
                   <p className="text-sm text-gray-600">ربح النظام</p>
                   <p className="text-xl font-bold text-red-700">
-                    {(summary.systemProfit || 0).toFixed(2)} ج.م
+                    {formatMoney(summary.systemProfit || 0)}
                     <span className="text-xs text-gray-500 mr-2">({summary.systemCommissionRate ?? 0}%)</span>
                   </p>
                 </div>
@@ -325,14 +327,14 @@ const WalletDetails = () => {
                 <DollarSign className="text-blue-600" size={20} />
                 <div>
                   <p className="text-sm text-gray-600">صافي أرباح الطبيب</p>
-                  <p className="text-xl font-bold text-blue-700">{(summary.totalEarnings || 0).toFixed(2)} ج.م</p>
+                  <p className="text-xl font-bold text-blue-700">{formatMoney(summary.totalEarnings || 0)}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
                 <DollarSign className="text-orange-600" size={20} />
                 <div>
                   <p className="text-sm text-gray-600">إجمالي السحوبات</p>
-                  <p className="text-xl font-bold text-red-700">{(summary.totalWithdrawals || 0).toFixed(2)} ج.م</p>
+                  <p className="text-xl font-bold text-red-700">{formatMoney(summary.totalWithdrawals || 0)}</p>
                 </div>
               </div>
             </div>

@@ -22,8 +22,10 @@ import {
   Zap
 } from 'lucide-react';
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, RadialBarChart, RadialBar } from 'recharts';
+import { useAppCurrency } from '../../utils/currency';
 
 const Dashboard = () => {
+  const { currency, formatMoney } = useAppCurrency();
   const { data: stats, isLoading, isError, error } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: async () => {
@@ -65,7 +67,7 @@ const Dashboard = () => {
     },
     {
       title: 'الإيرادات اليوم',
-      value: `${stats?.todayRevenue || 0} ج.م`,
+      value: formatMoney(stats?.todayRevenue || 0),
       icon: DollarSign,
       iconBg: 'bg-gray-100',
       iconColor: 'text-primary-600',
@@ -277,7 +279,7 @@ const Dashboard = () => {
                 stroke="#14b8a6" 
                 fillOpacity={1} 
                 fill="url(#colorRevenue)" 
-                name="الإيرادات (ج.م)"
+                name={`الإيرادات (${currency})`}
               />
               <Area 
                 type="monotone" 

@@ -4,8 +4,10 @@ import { payments, withdrawals } from '../../api/admin';
 import { DollarSign, TrendingUp, Clock, Calendar, User, Check, X, CreditCard, Wallet, AlertCircle, ArrowDown, ArrowUp, Stethoscope } from 'lucide-react';
 import DataTable from '../../components/common/DataTable';
 import toast from 'react-hot-toast';
+import { useAppCurrency } from '../../utils/currency';
 
 const Payments = () => {
+  const { currency, formatMoney } = useAppCurrency();
   const [activeTab, setActiveTab] = useState('payments');
   const [page, setPage] = useState(1);
   const limit = 20;
@@ -76,7 +78,7 @@ const Payments = () => {
             <DollarSign className="text-green-600" size={20} />
           </div>
           <div>
-            <p className="text-lg font-bold text-gray-900">{row.amount} ج.م</p>
+            <p className="text-lg font-bold text-gray-900">{formatMoney(row.amount)}</p>
             <p className="text-xs text-gray-500">دفعة</p>
           </div>
         </div>
@@ -193,7 +195,7 @@ const Payments = () => {
             <TrendingUp className="text-blue-600" size={20} />
           </div>
           <div>
-            <p className="text-lg font-bold text-gray-900">{row.amount} ج.م</p>
+            <p className="text-lg font-bold text-gray-900">{formatMoney(row.amount)}</p>
             <p className="text-xs text-gray-500">سحب</p>
           </div>
         </div>
@@ -401,7 +403,7 @@ const Payments = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-gray-900">{totalPaymentsAmount.toFixed(2)}</p>
-                  <p className="text-xs text-gray-500">إجمالي المبلغ (ج.م)</p>
+                  <p className="text-xs text-gray-500">{`إجمالي المبلغ (${currency})`}</p>
                 </div>
               </div>
             </div>
@@ -514,7 +516,7 @@ const Payments = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-gray-900">{totalWithdrawalsAmount.toFixed(2)}</p>
-                  <p className="text-xs text-gray-500">إجمالي المبلغ (ج.م)</p>
+                  <p className="text-xs text-gray-500">{`إجمالي المبلغ (${currency})`}</p>
                 </div>
               </div>
             </div>

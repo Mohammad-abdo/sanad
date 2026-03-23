@@ -25,8 +25,10 @@ import {
 import toast from 'react-hot-toast';
 import Modal from '../../components/common/Modal';
 import { useState } from 'react';
+import { useAppCurrency } from '../../utils/currency';
 
 const DoctorDetails = () => {
+  const { formatMoney } = useAppCurrency();
   const { id } = useParams();
   const navigate = useNavigate();
   const [showEditModal, setShowEditModal] = useState(false);
@@ -281,7 +283,7 @@ const DoctorDetails = () => {
                 <p className="text-sm text-gray-500 mb-2">مدة الجلسة</p>
                 <p className="text-2xl font-bold text-gray-900 mb-2">{price.duration} دقيقة</p>
                 <div className="pt-3 border-t border-gray-200">
-                  <p className="text-3xl font-bold text-primary-600">{price.price} ج.م</p>
+                  <p className="text-3xl font-bold text-primary-600">{formatMoney(price.price)}</p>
                 </div>
               </div>
             ))}
@@ -428,7 +430,7 @@ const DoctorDetails = () => {
               <DollarSign className="text-green-600" size={28} />
             </div>
             <p className="text-2xl font-bold text-gray-900 mb-1">
-              {doctor.walletBalance?.toFixed(2) || '0.00'} ج.م
+              {formatMoney(doctor.walletBalance || 0)}
             </p>
             <p className="text-sm text-gray-500">الرصيد الحالي</p>
           </div>
@@ -437,7 +439,7 @@ const DoctorDetails = () => {
               <TrendingUp className="text-blue-600" size={28} />
             </div>
             <p className="text-2xl font-bold text-gray-900 mb-1">
-              {doctor.totalEarnings?.toFixed(2) || '0.00'} ج.م
+              {formatMoney(doctor.totalEarnings || 0)}
             </p>
             <p className="text-sm text-gray-500">إجمالي الأرباح</p>
           </div>
@@ -446,7 +448,7 @@ const DoctorDetails = () => {
               <DollarSign className="text-orange-600" size={28} />
             </div>
             <p className="text-2xl font-bold text-gray-900 mb-1">
-              {doctor.totalWithdrawals?.toFixed(2) || '0.00'} ج.م
+              {formatMoney(doctor.totalWithdrawals || 0)}
             </p>
             <p className="text-sm text-gray-500">إجمالي السحوبات</p>
           </div>
@@ -506,7 +508,7 @@ const DoctorDetails = () => {
                             : '-'}
                         </p>
                         <p className="text-xs text-gray-500 mt-1">
-                          {booking.price} ج.م - {booking.duration} دقيقة
+                          {formatMoney(booking.price)} - {booking.duration} دقيقة
                         </p>
                       </div>
                     ))}
@@ -546,7 +548,7 @@ const DoctorDetails = () => {
                 {doctor.payments.map((payment) => (
                   <tr key={payment.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3 text-sm text-gray-900 text-right font-semibold">
-                      {payment.amount} ج.م
+                      {formatMoney(payment.amount)}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600">
                       {payment.method === 'BANK_ACCOUNT' ? 'حساب بنكي' :
@@ -619,7 +621,7 @@ const DoctorDetails = () => {
                 {doctor.withdrawals.map((withdrawal) => (
                   <tr key={withdrawal.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3 text-sm text-gray-900 text-right font-semibold">
-                      {withdrawal.amount} ج.م
+                      {formatMoney(withdrawal.amount)}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600">
                       {withdrawal.method === 'BANK_ACCOUNT' ? 'حساب بنكي' :

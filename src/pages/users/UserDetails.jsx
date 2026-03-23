@@ -25,8 +25,10 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import DataTable from '../../components/common/DataTable';
+import { useAppCurrency } from '../../utils/currency';
 
 const UserDetails = () => {
+  const { formatMoney } = useAppCurrency();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -168,7 +170,7 @@ const UserDetails = () => {
       render: (booking) => (
         <div className="flex items-center gap-2">
           <DollarSign size={16} className="text-green-600" />
-          <span className="text-sm font-bold text-gray-900">{booking.price} ج.م</span>
+          <span className="text-sm font-bold text-gray-900">{formatMoney(booking.price)}</span>
         </div>
       )
     },

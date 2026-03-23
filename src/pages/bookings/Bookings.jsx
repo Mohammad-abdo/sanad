@@ -5,8 +5,10 @@ import { bookings } from '../../api/admin';
 import { Calendar, User, Clock, DollarSign, Stethoscope, Edit, Trash2, Eye, CheckCircle, XCircle, AlertCircle, TrendingUp } from 'lucide-react';
 import DataTable from '../../components/common/DataTable';
 import toast from 'react-hot-toast';
+import { useAppCurrency } from '../../utils/currency';
 
 const Bookings = () => {
+  const { currency, formatMoney } = useAppCurrency();
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const limit = 20;
@@ -151,7 +153,7 @@ const Bookings = () => {
             <DollarSign size={16} className="text-green-600" />
           </div>
           <div>
-            <p className="text-lg font-bold text-gray-900">{row.price} ج.م</p>
+            <p className="text-lg font-bold text-gray-900">{formatMoney(row.price)}</p>
             <p className="text-xs text-gray-500">{row.duration} دقيقة</p>
           </div>
         </div>
@@ -262,7 +264,7 @@ const Bookings = () => {
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{totalRevenue.toFixed(2)}</p>
-              <p className="text-xs text-gray-500">إجمالي الإيرادات (ج.م)</p>
+              <p className="text-xs text-gray-500">{`إجمالي الإيرادات (${currency})`}</p>
             </div>
           </div>
         </div>

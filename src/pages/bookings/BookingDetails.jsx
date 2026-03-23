@@ -20,8 +20,10 @@ import {
   FileText
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useAppCurrency } from '../../utils/currency';
 
 const BookingDetails = () => {
+  const { formatMoney } = useAppCurrency();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -212,7 +214,7 @@ const BookingDetails = () => {
               <div className="flex items-center gap-2 text-gray-600">
                 <DollarSign size={20} className="text-green-600" />
                 <div>
-                  <p className="text-lg font-semibold text-gray-900">{booking.price} ج.م</p>
+                  <p className="text-lg font-semibold text-gray-900">{formatMoney(booking.price)}</p>
                   <p className="text-xs text-gray-500">السعر</p>
                 </div>
               </div>
@@ -336,7 +338,7 @@ const BookingDetails = () => {
             </div>
             <div className="flex items-center justify-between py-2">
               <span className="text-sm text-gray-600">السعر</span>
-              <span className="text-lg font-bold text-green-600">{booking.price} ج.م</span>
+              <span className="text-lg font-bold text-green-600">{formatMoney(booking.price)}</span>
             </div>
           </div>
         </div>

@@ -18,8 +18,10 @@ import {
   FileText
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useAppCurrency } from '../../utils/currency';
 
 const CouponDetails = () => {
+  const { formatMoney } = useAppCurrency();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -193,7 +195,7 @@ const CouponDetails = () => {
             <div className="flex items-center gap-6 mb-4">
               <div>
                 <p className="text-3xl font-bold text-gray-900">
-                  {coupon.type === 'PERCENTAGE' ? `${coupon.value}%` : `${coupon.value} ج.م`}
+                  {coupon.type === 'PERCENTAGE' ? `${coupon.value}%` : formatMoney(coupon.value)}
                 </p>
                 <p className="text-sm text-gray-500">
                   {coupon.type === 'PERCENTAGE' ? 'خصم نسبة مئوية' : 'خصم مبلغ ثابت'}
@@ -234,7 +236,7 @@ const CouponDetails = () => {
             )}
           </div>
           <p className="text-3xl font-bold text-gray-900 mb-1">
-            {coupon.type === 'PERCENTAGE' ? `${coupon.value}%` : `${coupon.value} ج.م`}
+            {coupon.type === 'PERCENTAGE' ? `${coupon.value}%` : formatMoney(coupon.value)}
           </p>
           <p className="text-sm text-gray-500">قيمة الخصم</p>
         </div>
@@ -298,19 +300,19 @@ const CouponDetails = () => {
             <div className="flex items-center justify-between py-2 border-b border-gray-100">
               <span className="text-sm text-gray-600">القيمة</span>
               <span className="text-sm font-semibold text-gray-900">
-                {coupon.type === 'PERCENTAGE' ? `${coupon.value}%` : `${coupon.value} ج.م`}
+                {coupon.type === 'PERCENTAGE' ? `${coupon.value}%` : formatMoney(coupon.value)}
               </span>
             </div>
             {coupon.minAmount && (
               <div className="flex items-center justify-between py-2 border-b border-gray-100">
                 <span className="text-sm text-gray-600">الحد الأدنى للطلب</span>
-                <span className="text-sm font-semibold text-gray-900">{coupon.minAmount} ج.م</span>
+                <span className="text-sm font-semibold text-gray-900">{formatMoney(coupon.minAmount)}</span>
               </div>
             )}
             {coupon.maxDiscount && (
               <div className="flex items-center justify-between py-2 border-b border-gray-100">
                 <span className="text-sm text-gray-600">الحد الأقصى للخصم</span>
-                <span className="text-sm font-semibold text-gray-900">{coupon.maxDiscount} ج.م</span>
+                <span className="text-sm font-semibold text-gray-900">{formatMoney(coupon.maxDiscount)}</span>
               </div>
             )}
             <div className="flex items-center justify-between py-2">

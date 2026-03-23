@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { setStoredCurrency } from '../../utils/currency';
 
 const FONTS = [
   { value: 'Cairo', label: 'Cairo' },
@@ -145,6 +146,7 @@ const Settings = () => {
           ? paymentSettings.enabledPaymentMethods
           : ['BANK_ACCOUNT', 'E_WALLET', 'VODAFONE_CASH', 'INSTAPAY'],
       });
+      setStoredCurrency(paymentSettings.currency || 'EGP');
     }
   }, [settingsData]);
 
@@ -279,6 +281,7 @@ const Settings = () => {
 
   const handlePaymentSubmit = (e) => {
     e.preventDefault();
+    setStoredCurrency(paymentForm.currency || 'EGP');
     updateSettingsMutation.mutate({
       paymentSettings: {
         systemCommissionRate: Number(paymentForm.systemCommissionRate || 0),

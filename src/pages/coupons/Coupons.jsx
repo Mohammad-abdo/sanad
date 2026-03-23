@@ -6,8 +6,10 @@ import toast from 'react-hot-toast';
 import { coupons } from '../../api/admin';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
+import { useAppCurrency } from '../../utils/currency';
 
 const Coupons = () => {
+  const { formatMoney } = useAppCurrency();
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [editingCoupon, setEditingCoupon] = useState(null);
@@ -131,7 +133,7 @@ const Coupons = () => {
           </div>
           <div>
             <p className="text-lg font-bold text-gray-900">
-              {row.type === 'PERCENTAGE' ? `${row.value}%` : `${row.value} ج.م`}
+              {row.type === 'PERCENTAGE' ? `${row.value}%` : formatMoney(row.value)}
             </p>
             <p className="text-xs text-gray-500">{row.type === 'PERCENTAGE' ? 'نسبة' : 'مبلغ'}</p>
           </div>

@@ -5,8 +5,10 @@ import { DollarSign, CheckCircle, XCircle, Clock, Eye, Calendar, Stethoscope, Tr
 import toast from 'react-hot-toast';
 import { withdrawals } from '../../api/admin';
 import DataTable from '../../components/common/DataTable';
+import { useAppCurrency } from '../../utils/currency';
 
 const Withdrawals = () => {
+  const { formatMoney } = useAppCurrency();
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const limit = 20;
@@ -114,7 +116,7 @@ const Withdrawals = () => {
             <DollarSign className="text-green-600" size={18} />
           </div>
           <div>
-            <p className="text-lg font-bold text-gray-900">{row.amount} ج.م</p>
+            <p className="text-lg font-bold text-gray-900">{formatMoney(row.amount)}</p>
             <p className="text-xs text-gray-500">مبلغ السحب</p>
           </div>
         </div>
@@ -220,7 +222,7 @@ const Withdrawals = () => {
               <TrendingUp className="text-purple-600" size={24} />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{totalAmount.toLocaleString()} ج.م</p>
+              <p className="text-2xl font-bold text-gray-900">{formatMoney(totalAmount)}</p>
               <p className="text-xs text-gray-500">إجمالي المبلغ</p>
             </div>
           </div>

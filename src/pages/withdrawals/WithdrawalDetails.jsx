@@ -20,8 +20,10 @@ import {
 import toast from 'react-hot-toast';
 import Modal from '../../components/common/Modal';
 import { useState } from 'react';
+import { useAppCurrency } from '../../utils/currency';
 
 const WithdrawalDetails = () => {
+  const { formatMoney } = useAppCurrency();
   const { id } = useParams();
   const navigate = useNavigate();
   const [showRejectModal, setShowRejectModal] = useState(false);
@@ -186,7 +188,7 @@ const WithdrawalDetails = () => {
             </div>
             <div className="flex items-center gap-6 mb-4">
               <div>
-                <p className="text-3xl font-bold text-gray-900">{withdrawalData.amount} ج.م</p>
+                <p className="text-3xl font-bold text-gray-900">{formatMoney(withdrawalData.amount)}</p>
                 <p className="text-sm text-gray-500">مبلغ السحب</p>
               </div>
             </div>
@@ -215,7 +217,7 @@ const WithdrawalDetails = () => {
           <div className="w-16 h-16 rounded-xl bg-green-50 border border-green-200 flex items-center justify-center mx-auto mb-3">
             <DollarSign className="text-green-600" size={28} />
           </div>
-          <p className="text-3xl font-bold text-gray-900 mb-1">{withdrawalData.amount} ج.م</p>
+          <p className="text-3xl font-bold text-gray-900 mb-1">{formatMoney(withdrawalData.amount)}</p>
           <p className="text-sm text-gray-500">مبلغ السحب</p>
         </div>
         <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
@@ -294,7 +296,7 @@ const WithdrawalDetails = () => {
           <div className="space-y-3">
             <div className="flex items-center justify-between py-2 border-b border-gray-100">
               <span className="text-sm text-gray-600">المبلغ</span>
-              <span className="text-sm font-semibold text-gray-900">{withdrawalData.amount} ج.م</span>
+              <span className="text-sm font-semibold text-gray-900">{formatMoney(withdrawalData.amount)}</span>
             </div>
             <div className="flex items-center justify-between py-2 border-b border-gray-100">
               <span className="text-sm text-gray-600">طريقة السحب</span>
