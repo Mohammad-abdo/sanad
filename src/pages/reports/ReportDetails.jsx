@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { reports } from '../../api/admin';
@@ -20,8 +21,9 @@ import toast from 'react-hot-toast';
 const ReportDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('overview');
 
-  const { data: report, isLoading, error, refetch } = useQuery({
+  const { data: report, isLoading, error } = useQuery({
     queryKey: ['report-details', id],
     queryFn: async () => {
       const response = await reports.getById(id);
@@ -149,6 +151,49 @@ const ReportDetails = () => {
   const statusConfig = getStatusConfig(report.status);
   const StatusIcon = statusConfig.icon;
 
+  const filtersKeys = useMemo(() => {
+    if (!report?.filters || typeof report.filters !== 'object') return [];
+    return Object.keys(report.filters);
+  }, [report?.filters]);
+
+  const formatDate = (value) => {
+    if (!value) return '-';
+    return new Date(value).toLocaleDateString('ar-EG', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  const renderFiltersValue = (value, keyPath = '') => {
+    if (value === null || value === undefined) return <span className="text-gray-400">—</span>;
+
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+      return (
+        <span className="text-sm text-gray-900 font-medium">
+          {String(value)}
+        </span>
+      );
+    }
+
+    // For arrays/objects, use <details> to keep the UI compact.
+    const pretty = JSON.stringify(value, null, 2);
+    return (
+      <details className="w-full">
+        <summary className="cursor-pointer list-none select-none text-primary-700 font-semibold text-sm hover:underline">
+          عرض القيمة التفصيلية
+        </summary>
+        <div className="mt-2 rounded-lg border border-gray-200 bg-gray-50 p-3">
+          <pre className="text-xs text-gray-800 whitespace-pre-wrap font-mono">{pretty}</pre>
+        </div>
+      </details>
+    );
+  };
+
+  const hasFailed = report?.status === 'FAILED';
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -234,141 +279,322 @@ const ReportDetails = () => {
         </div>
       </div>
 
-      {/* Report Information */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <Calendar className="text-primary-600" size={20} />
-            معلومات التقرير
-          </h3>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between py-2 border-b border-gray-100">
-              <span className="text-sm text-gray-600">تاريخ الإنشاء</span>
-              <span className="text-sm font-semibold text-gray-900">
-                {new Date(report.createdAt).toLocaleDateString('ar-EG', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
-              </span>
-            </div>
-            {report.startedAt && (
-              <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                <span className="text-sm text-gray-600">تاريخ البدء</span>
-                <span className="text-sm font-semibold text-gray-900">
-                  {new Date(report.startedAt).toLocaleDateString('ar-EG', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </span>
-              </div>
-            )}
-            {report.completedAt && (
-              <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                <span className="text-sm text-gray-600">تاريخ الإكمال</span>
-                <span className="text-sm font-semibold text-gray-900">
-                  {new Date(report.completedAt).toLocaleDateString('ar-EG', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </span>
-              </div>
-            )}
-            {report.completedAt && report.startedAt && (
-              <div className="flex items-center justify-between py-2">
-                <span className="text-sm text-gray-600">مدة المعالجة</span>
-                <span className="text-sm font-semibold text-gray-900">
-                  {Math.round((new Date(report.completedAt) - new Date(report.startedAt)) / 1000)} ثانية
-                </span>
-              </div>
-            )}
+      {/* Tabs */}
+      <div className="glass-card rounded-2xl p-4 bg-white border border-gray-200">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="flex gap-2 flex-wrap">
+            {[
+              { key: 'overview', label: 'نظرة عامة' },
+              { key: 'timeline', label: 'الزمن' },
+              { key: 'filters', label: 'الفلاتر' },
+              { key: 'output', label: 'الملف والأخطاء' },
+              { key: 'raw', label: 'Raw JSON' },
+            ].map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setActiveTab(t.key)}
+                className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-colors ${
+                  activeTab === t.key
+                    ? 'bg-primary-600 text-white border-primary-700'
+                    : 'bg-white text-gray-700 border-gray-200 hover:bg-primary-50'
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
           </div>
-        </div>
 
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <FileText className="text-primary-600" size={20} />
-            معلومات الملف
-          </h3>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between py-2 border-b border-gray-100">
-              <span className="text-sm text-gray-600">معرف التقرير</span>
-              <span className="text-sm font-semibold text-gray-900 font-mono">{report.id}</span>
-            </div>
-            {report.fileUrl && (
-              <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                <span className="text-sm text-gray-600">رابط الملف</span>
-                <a
-                  href={report.fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm font-semibold text-primary-600 hover:text-primary-700 hover:underline"
-                >
-                  عرض الملف
-                </a>
-              </div>
-            )}
-            {report.filePath && (
-              <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                <span className="text-sm text-gray-600">مسار الملف</span>
-                <span className="text-sm font-semibold text-gray-900 font-mono text-xs">{report.filePath}</span>
-              </div>
-            )}
-            <div className="flex items-center justify-between py-2">
-              <span className="text-sm text-gray-600">الحالة</span>
-              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusConfig.bgColor} ${statusConfig.color}`}>
-                {statusConfig.label}
-              </span>
-            </div>
+          <div className="flex items-center gap-3">
+            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusConfig.bgColor} ${statusConfig.color} border border-transparent`}>
+              {statusConfig.label}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Filters */}
-      {report.filters && Object.keys(report.filters).length > 0 && (
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <FileBarChart className="text-primary-600" size={20} />
-            الفلاتر المستخدمة
+      {/* Tab Content */}
+      {activeTab === 'overview' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="glass-card rounded-xl p-6 border border-gray-200">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <FileBarChart className="text-primary-600" size={20} />
+              بيانات التقرير
+            </h3>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                <span className="text-sm text-gray-600">معرف التقرير</span>
+                <span className="text-sm font-semibold text-gray-900 font-mono">{report.id}</span>
+              </div>
+
+              <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                <span className="text-sm text-gray-600">النوع</span>
+                <span className="text-sm font-semibold text-gray-900">{report.type}</span>
+              </div>
+
+              <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                <span className="text-sm text-gray-600">الصيغة</span>
+                <span className="text-sm font-semibold text-gray-900">{report.format}</span>
+              </div>
+
+              {report.description && (
+                <div className="pt-3">
+                  <div className="text-sm text-gray-600 mb-2">الوصف</div>
+                  <div className="text-sm text-gray-900 font-medium whitespace-pre-wrap">
+                    {report.description}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="glass-card rounded-xl p-6 border border-gray-200">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <User className="text-primary-600" size={20} />
+              المُنشئ (Admin)
+            </h3>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                <span className="text-sm text-gray-600">GeneratedBy</span>
+                <span className="text-sm font-semibold text-gray-900 font-mono">{report.generatedBy}</span>
+              </div>
+
+              <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                <span className="text-sm text-gray-600">الاسم</span>
+                <span className="text-sm font-semibold text-gray-900">{report.generatedByAdmin?.name || 'غير محدد'}</span>
+              </div>
+
+              <div className="flex items-center justify-between py-2">
+                <span className="text-sm text-gray-600">البريد</span>
+                <span className="text-sm font-semibold text-gray-900">{report.generatedByAdmin?.email || '—'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'timeline' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="glass-card rounded-xl p-6 border border-gray-200">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Calendar className="text-primary-600" size={20} />
+              معلومات الزمن
+            </h3>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                <span className="text-sm text-gray-600">تاريخ الإنشاء</span>
+                <span className="text-sm font-semibold text-gray-900">{formatDate(report.createdAt)}</span>
+              </div>
+
+              <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                <span className="text-sm text-gray-600">تاريخ البدء</span>
+                <span className="text-sm font-semibold text-gray-900">{formatDate(report.startedAt)}</span>
+              </div>
+
+              <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                <span className="text-sm text-gray-600">تاريخ الإكمال</span>
+                <span className="text-sm font-semibold text-gray-900">{formatDate(report.completedAt)}</span>
+              </div>
+
+              {report.completedAt && report.startedAt && (
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm text-gray-600">مدة المعالجة</span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    {Math.max(0, Math.round((new Date(report.completedAt) - new Date(report.startedAt)) / 1000))} ثانية
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className={`glass-card rounded-xl p-6 border ${
+            report.status === 'FAILED'
+              ? 'border-red-200 bg-red-50'
+              : report.status === 'PROCESSING'
+                ? 'border-blue-200 bg-blue-50'
+                : 'border-gray-200 bg-white'
+          }`}>
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              {report.status === 'FAILED' ? (
+                <XCircle className="text-red-600" size={20} />
+              ) : report.status === 'PROCESSING' ? (
+                <Loader2 className="text-blue-600 animate-spin" size={20} />
+              ) : (
+                <CheckCircle className="text-green-600" size={20} />
+              )}
+              الحالة
+            </h3>
+
+            <div className="space-y-2">
+              {report.status === 'PENDING' && (
+                <p className="text-sm text-gray-700">التقرير في انتظار بدء المعالجة.</p>
+              )}
+              {report.status === 'PROCESSING' && (
+                <p className="text-sm text-blue-800">يرجى الانتظار حتى يكتمل إنشاء التقرير...</p>
+              )}
+              {report.status === 'COMPLETED' && (
+                <p className="text-sm text-green-800">تم إنشاء التقرير بنجاح ويمكن تنزيله.</p>
+              )}
+              {report.status === 'FAILED' && (
+                <div className="space-y-2">
+                  <p className="text-sm text-red-800 font-semibold">فشل إنشاء التقرير</p>
+                  {report.error ? (
+                    <pre className="text-xs text-red-900 whitespace-pre-wrap font-mono bg-red-100 border border-red-200 rounded-lg p-3">
+                      {report.error}
+                    </pre>
+                  ) : (
+                    <p className="text-sm text-red-700">لم يتم توفير تفاصيل خطأ.</p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'filters' && (
+        <div className="glass-card rounded-2xl p-6 border border-gray-200">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <h3 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
+                <FileBarChart className="text-primary-600" size={20} />
+                الفلاتر المستخدمة
+              </h3>
+              <p className="text-sm text-gray-600">
+                {filtersKeys.length ? `عدد الفلاتر: ${filtersKeys.length}` : 'لا توجد فلاتر لهذا التقرير'}
+              </p>
+            </div>
+          </div>
+
+          {report.filters && typeof report.filters === 'object' && filtersKeys.length > 0 ? (
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filtersKeys.map((k) => (
+                <div key={k} className="rounded-xl border border-gray-200 bg-white p-4">
+                  <div className="text-xs font-semibold text-gray-500 mb-2">{k}</div>
+                  {renderFiltersValue(report.filters[k], k)}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-6 text-sm text-gray-600">لا يوجد أي فلاتر.</div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'output' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="glass-card rounded-xl p-6 border border-gray-200">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <FileText className="text-primary-600" size={20} />
+              معلومات الملف
+            </h3>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                <span className="text-sm text-gray-600">الحالة</span>
+                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusConfig.bgColor} ${statusConfig.color}`}>
+                  {statusConfig.label}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                <span className="text-sm text-gray-600">رابط الملف</span>
+                {report.fileUrl ? (
+                  <a
+                    href={report.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-semibold text-primary-600 hover:text-primary-700 hover:underline"
+                  >
+                    فتح
+                  </a>
+                ) : (
+                  <span className="text-sm text-gray-400">—</span>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                <span className="text-sm text-gray-600">مسار الملف</span>
+                <span className="text-sm font-semibold text-gray-900 font-mono text-xs">
+                  {report.filePath || '—'}
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-5">
+              {report.status === 'COMPLETED' ? (
+                <button
+                  onClick={() => downloadMutation.mutate()}
+                  disabled={downloadMutation.isPending}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors disabled:opacity-50"
+                >
+                  {downloadMutation.isPending ? (
+                    <>
+                      <Loader2 className="animate-spin" size={18} />
+                      جاري التحميل...
+                    </>
+                  ) : (
+                    <>
+                      <Download size={18} />
+                      تحميل التقرير
+                    </>
+                  )}
+                </button>
+              ) : (
+                <div className="text-sm text-gray-600 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                  التقرير غير مكتمل بعد، التنزيل متاح فقط عند اكتمال الحالة إلى `COMPLETED`.
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="glass-card rounded-xl p-6 border border-gray-200">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <AlertCircle className="text-primary-600" size={20} />
+              الأخطاء
+            </h3>
+
+            {!hasFailed && (
+              <div className="text-sm text-gray-600">
+                لا توجد أخطاء لهذا التقرير (الحالة الحالية: <span className="font-semibold">{report.status}</span>).
+              </div>
+            )}
+
+            {hasFailed && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-red-700 font-semibold">
+                  <XCircle size={18} className="text-red-600" />
+                  تقرير فشل أثناء الإنشاء
+                </div>
+
+                {report.error ? (
+                  <pre className="text-xs text-red-900 whitespace-pre-wrap font-mono bg-red-100 border border-red-200 rounded-lg p-3">
+                    {report.error}
+                  </pre>
+                ) : (
+                  <div className="text-sm text-red-700">تفاصيل الخطأ غير متوفرة.</div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'raw' && (
+        <div className="glass-card rounded-2xl p-6 border border-gray-200">
+          <h3 className="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">
+            <FileText className="text-primary-600" size={20} />
+            كل بيانات التقرير (Raw JSON)
           </h3>
-          <div className="bg-gray-50 rounded-lg p-4">
-            <pre className="text-sm text-gray-700 whitespace-pre-wrap font-mono">
-              {JSON.stringify(report.filters, null, 2)}
+          <p className="text-sm text-gray-600 mb-4">
+            نسخة كاملة من بيانات التقرير كما جاءت من السيرفر.
+          </p>
+          <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 overflow-auto max-h-[420px]">
+            <pre className="text-xs text-gray-800 whitespace-pre-wrap font-mono">
+              {JSON.stringify(report, null, 2)}
             </pre>
-          </div>
-        </div>
-      )}
-
-      {/* Processing Status */}
-      {report.status === 'PROCESSING' && (
-        <div className="glass-card rounded-xl p-6 border border-blue-200 bg-blue-50">
-          <div className="flex items-center gap-3">
-            <Loader2 className="animate-spin text-blue-600" size={24} />
-            <div>
-              <p className="font-semibold text-blue-900">التقرير قيد المعالجة</p>
-              <p className="text-sm text-blue-700">يرجى الانتظار حتى يكتمل إنشاء التقرير...</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Failed Status */}
-      {report.status === 'FAILED' && (
-        <div className="glass-card rounded-xl p-6 border border-red-200 bg-red-50">
-          <div className="flex items-center gap-3">
-            <XCircle className="text-red-600" size={24} />
-            <div>
-              <p className="font-semibold text-red-900">فشل إنشاء التقرير</p>
-              <p className="text-sm text-red-700">حدث خطأ أثناء إنشاء التقرير. يرجى المحاولة مرة أخرى.</p>
-            </div>
           </div>
         </div>
       )}
