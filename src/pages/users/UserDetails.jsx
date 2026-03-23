@@ -329,9 +329,7 @@ const UserDetails = () => {
               </button>
               <button
                 onClick={() => {
-                  if (window.confirm('هل أنت متأكد من رفض هذا المستخدم؟')) {
-                    rejectMutation.mutate();
-                  }
+                  rejectMutation.mutate();
                 }}
                 disabled={rejectMutation.isPending}
                 className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50"
@@ -376,9 +374,7 @@ const UserDetails = () => {
           </button>
           <button
             onClick={() => {
-              if (window.confirm(`هل أنت متأكد من حذف المستخدم "${user.username}"؟`)) {
-                deleteMutation.mutate();
-              }
+              deleteMutation.mutate();
             }}
             disabled={deleteMutation.isPending}
             className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50"

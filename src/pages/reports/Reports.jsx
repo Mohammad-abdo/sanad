@@ -12,6 +12,8 @@ const Reports = () => {
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [page, setPage] = useState(1);
   const limit = 20;
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['admin-reports', page],
@@ -169,9 +171,8 @@ const Reports = () => {
       label: 'حذف',
       icon: Trash2,
       onClick: (row) => {
-        if (window.confirm('هل أنت متأكد من حذف هذا التقرير؟')) {
-          deleteMutation.mutate(row.id);
-        }
+        setConfirmDeleteId(row.id);
+        setConfirmDeleteOpen(true);
       },
       className: 'text-red-600 hover:bg-red-50',
       show: () => true,
@@ -334,6 +335,41 @@ const Reports = () => {
             </button>
           </div>
         </form>
+      </Modal>
+
+      {/* Confirm Delete */}
+      <Modal
+        isOpen={confirmDeleteOpen}
+        onClose={() => setConfirmDeleteOpen(false)}
+        title="تأكيد الحذف"
+        size="sm"
+      >
+        <div className="space-y-3 text-gray-700" dir="rtl">
+          <p className="text-sm">
+            هل أنت متأكد من حذف هذا التقرير؟
+          </p>
+          <div className="flex items-center justify-end gap-2 pt-2">
+            <button
+              onClick={() => setConfirmDeleteOpen(false)}
+              className="px-4 py-2 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
+              type="button"
+            >
+              إلغاء
+            </button>
+            <button
+              onClick={() => {
+                const idToDelete = confirmDeleteId;
+                setConfirmDeleteOpen(false);
+                if (idToDelete) deleteMutation.mutate(idToDelete);
+              }}
+              disabled={deleteMutation.isPending || !confirmDeleteId}
+              className="px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50"
+              type="button"
+            >
+              {deleteMutation.isPending ? 'جاري الحذف...' : 'حذف'}
+            </button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

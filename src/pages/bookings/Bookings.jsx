@@ -192,9 +192,7 @@ const Bookings = () => {
       label: 'حذف',
       icon: Trash2,
       onClick: (row) => {
-        if (window.confirm(`هل أنت متأكد من حذف الحجز #${row.id.substring(0, 8)}؟`)) {
-          deleteMutation.mutate(row.id);
-        }
+        deleteMutation.mutate(row.id);
       },
       className: 'text-red-600 hover:bg-red-50',
       show: () => true,

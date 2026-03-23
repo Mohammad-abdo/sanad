@@ -147,9 +147,7 @@ const Admins = () => {
       toast.error('لا يمكنك حذف حسابك الخاص');
       return;
     }
-    if (window.confirm('هل أنت متأكد من حذف هذا الأدمن؟')) {
-      deleteMutation.mutate(adminToDelete.id);
-    }
+    deleteMutation.mutate(adminToDelete.id);
   };
 
   if (!isSuperAdmin) {

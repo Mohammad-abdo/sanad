@@ -143,9 +143,7 @@ const BookingDetails = () => {
           {booking.status === 'PENDING' && (
             <button
               onClick={() => {
-                if (window.confirm('هل أنت متأكد من تأكيد هذا الحجز؟')) {
-                  updateStatusMutation.mutate({ id: booking.id, status: 'CONFIRMED' });
-                }
+                updateStatusMutation.mutate({ id: booking.id, status: 'CONFIRMED' });
               }}
               disabled={updateStatusMutation.isPending}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50"
@@ -171,9 +169,7 @@ const BookingDetails = () => {
           )}
           <button
             onClick={() => {
-              if (window.confirm(`هل أنت متأكد من حذف الحجز #${booking.id.substring(0, 8)}؟`)) {
-                deleteMutation.mutate(booking.id);
-              }
+              deleteMutation.mutate(booking.id);
             }}
             disabled={deleteMutation.isPending}
             className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors disabled:opacity-50"

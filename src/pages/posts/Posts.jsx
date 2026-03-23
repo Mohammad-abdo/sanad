@@ -49,9 +49,7 @@ const Posts = () => {
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('هل أنت متأكد من حذف هذا المنشور؟')) {
-      deleteMutation.mutate(id);
-    }
+    deleteMutation.mutate(id);
   };
 
   if (isLoading) {
@@ -225,9 +223,7 @@ const Posts = () => {
       label: 'رفض',
       icon: X,
       onClick: (row) => {
-        if (window.confirm('هل أنت متأكد من رفض هذا المنشور؟')) {
-          handleModerate(row.id, 'REJECT');
-        }
+        handleModerate(row.id, 'REJECT');
       },
       className: 'text-red-600 hover:bg-red-50',
       show: (row) => row.status !== 'REJECTED',
@@ -487,10 +483,8 @@ const Posts = () => {
               {selectedPost.status !== 'REJECTED' && (
                 <button
                   onClick={() => {
-                    if (window.confirm('هل أنت متأكد من رفض هذا المنشور؟')) {
-                      handleModerate(selectedPost.id, 'REJECT');
-                      setShowViewModal(false);
-                    }
+                    handleModerate(selectedPost.id, 'REJECT');
+                    setShowViewModal(false);
                   }}
                   disabled={moderateMutation.isPending}
                   className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50"

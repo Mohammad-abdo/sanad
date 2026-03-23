@@ -269,9 +269,7 @@ const Users = () => {
       label: 'رفض',
       icon: X,
       onClick: (row) => {
-        if (window.confirm('هل أنت متأكد من رفض هذا المستخدم؟')) {
-          rejectMutation.mutate(row.id);
-        }
+        rejectMutation.mutate(row.id);
       },
       className: 'text-red-600 hover:bg-red-50',
       show: (row) => !row.isApproved,
@@ -295,9 +293,7 @@ const Users = () => {
       label: 'حذف',
       icon: Trash2,
       onClick: (row) => {
-        if (window.confirm(`هل أنت متأكد من حذف المستخدم "${row.username}"؟`)) {
-          deleteMutation.mutate(row.id);
-        }
+        deleteMutation.mutate(row.id);
       },
       className: 'text-red-600 hover:bg-red-50',
       show: () => true,

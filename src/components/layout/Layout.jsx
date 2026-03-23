@@ -116,9 +116,7 @@ const Layout = ({ children = null }) => {
   });
 
   const handleClearAll = () => {
-    if (window.confirm('هل أنت متأكد من مسح جميع الإشعارات؟')) {
-      clearAllMutation.mutate();
-    }
+    clearAllMutation.mutate();
   };
 
   const menuItems = [

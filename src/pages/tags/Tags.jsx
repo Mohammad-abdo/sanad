@@ -162,9 +162,7 @@ const Tags = () => {
       label: 'حذف',
       icon: Trash2,
       onClick: (row) => {
-        if (window.confirm(`هل أنت متأكد من حذف التاج "${row.name}"؟`)) {
-          deleteMutation.mutate(row.id);
-        }
+        deleteMutation.mutate(row.id);
       },
       className: 'text-red-600 hover:bg-red-50',
       show: () => true,

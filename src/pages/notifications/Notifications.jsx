@@ -63,9 +63,7 @@ const Notifications = () => {
   });
 
   const handleClearAll = () => {
-    if (window.confirm('هل أنت متأكد من مسح جميع الإشعارات؟')) {
-      clearAllMutation.mutate();
-    }
+    clearAllMutation.mutate();
   };
 
   const notificationsList = data?.notifications || [];
@@ -216,9 +214,7 @@ const Notifications = () => {
       label: 'حذف',
       icon: Trash2,
       onClick: (row) => {
-        if (window.confirm('هل أنت متأكد من حذف هذا الإشعار؟')) {
-          deleteMutation.mutate(row.id);
-        }
+        deleteMutation.mutate(row.id);
       },
       className: 'text-red-600 hover:bg-red-50',
       show: () => true,

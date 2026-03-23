@@ -289,9 +289,7 @@ const Payments = () => {
       label: 'موافقة',
       icon: Check,
       onClick: (row) => {
-        if (window.confirm(`هل أنت متأكد من الموافقة على طلب السحب بقيمة ${row.amount} ج.م؟`)) {
-          approveWithdrawalMutation.mutate(row.id);
-        }
+        approveWithdrawalMutation.mutate(row.id);
       },
       className: 'text-green-600 hover:bg-green-50',
       show: (row) => row.status === 'PENDING',
@@ -300,9 +298,7 @@ const Payments = () => {
       label: 'رفض',
       icon: X,
       onClick: (row) => {
-        if (window.confirm(`هل أنت متأكد من رفض طلب السحب بقيمة ${row.amount} ج.م؟`)) {
-          rejectWithdrawalMutation.mutate(row.id);
-        }
+        rejectWithdrawalMutation.mutate(row.id);
       },
       className: 'text-red-600 hover:bg-red-50',
       show: (row) => row.status === 'PENDING',

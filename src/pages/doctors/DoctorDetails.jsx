@@ -129,9 +129,7 @@ const DoctorDetails = () => {
           {!doctor.isApproved && (
             <button
               onClick={() => {
-                if (window.confirm('هل أنت متأكد من الموافقة على هذا الطبيب؟')) {
-                  approveMutation.mutate();
-                }
+                approveMutation.mutate();
               }}
               className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors"
             >
@@ -142,9 +140,7 @@ const DoctorDetails = () => {
           {!doctor.isVerified && doctor.isApproved && (
             <button
               onClick={() => {
-                if (window.confirm('هل أنت متأكد من توثيق هذا الطبيب؟')) {
-                  verifyMutation.mutate();
-                }
+                verifyMutation.mutate();
               }}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
             >

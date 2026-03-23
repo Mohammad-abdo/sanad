@@ -300,9 +300,7 @@ const Doctors = () => {
       label: 'رفض',
       icon: X,
       onClick: (row) => {
-        if (window.confirm('هل أنت متأكد من رفض هذا الطبيب؟')) {
-          rejectMutation.mutate(row.id);
-        }
+        rejectMutation.mutate(row.id);
       },
       className: 'text-red-600 hover:bg-red-50',
       show: (row) => !row.isApproved,
@@ -341,9 +339,7 @@ const Doctors = () => {
       label: 'حذف',
       icon: Trash2,
       onClick: (row) => {
-        if (window.confirm(`هل أنت متأكد من حذف الطبيب "${row.name}"؟`)) {
-          deleteMutation.mutate(row.id);
-        }
+        deleteMutation.mutate(row.id);
       },
       className: 'text-red-600 hover:bg-red-50',
       show: () => true,

@@ -124,9 +124,7 @@ const NotificationDetails = () => {
           )}
           <button
             onClick={() => {
-              if (window.confirm('هل أنت متأكد من حذف هذا الإشعار؟')) {
-                deleteMutation.mutate();
-              }
+              deleteMutation.mutate();
             }}
             disabled={deleteMutation.isPending}
             className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50"

@@ -306,9 +306,7 @@ const ContentModeration = () => {
                   <span className="text-sm font-medium text-gray-900">{word}</span>
                   <button
                     onClick={() => {
-                      if (window.confirm(`هل أنت متأكد من حذف "${word}"؟`)) {
-                        removeWordMutation.mutate({ word, language: 'arabic' });
-                      }
+                      removeWordMutation.mutate({ word, language: 'arabic' });
                     }}
                     className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
                   >
@@ -338,9 +336,7 @@ const ContentModeration = () => {
                   <span className="text-sm font-medium text-gray-900">{word}</span>
                   <button
                     onClick={() => {
-                      if (window.confirm(`Are you sure you want to delete "${word}"?`)) {
-                        removeWordMutation.mutate({ word, language: 'english' });
-                      }
+                      removeWordMutation.mutate({ word, language: 'english' });
                     }}
                     className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
                   >
