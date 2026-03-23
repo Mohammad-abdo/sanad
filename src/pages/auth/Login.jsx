@@ -8,12 +8,22 @@ import { LogIn } from 'lucide-react';
 const Login = () => {
   const { isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
+  const [hydrated, setHydrated] = useState(() => useAuthStore.persist.hasHydrated());
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (useAuthStore.persist.hasHydrated()) {
+      setHydrated(true);
+      return undefined;
+    }
+    const unsub = useAuthStore.persist.onFinishHydration(() => setHydrated(true));
+    return unsub;
+  }, []);
+
+  useEffect(() => {
+    if (hydrated && isAuthenticated) {
       navigate('/dashboard', { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [hydrated, isAuthenticated, navigate]);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,25 +35,14 @@ const Login = () => {
 
     try {
       const response = await adminAuth.login({ email, password });
-      
-      // Check response structure
-      console.log('Login response:', response.data);
-      
+
       if (response.data && response.data.success && response.data.data) {
         const { token, admin } = response.data.data;
-        
-        console.log('Token:', token ? 'Present' : 'Missing');
-        console.log('Admin:', admin);
-        
+
         if (token && admin) {
           login(admin, token);
-          
-          // Verify token was saved
-          const savedToken = useAuthStore.getState().token;
-          console.log('Token saved:', savedToken ? 'Yes' : 'No');
-          
           toast.success('تم تسجيل الدخول بنجاح');
-          navigate('/dashboard');
+          navigate('/dashboard', { replace: true });
         } else {
           toast.error('خطأ في بيانات الاستجابة');
         }
@@ -87,6 +86,8 @@ const Login = () => {
             <label className="label">كلمة المرور</label>
             <input
               type="password"
+              name="password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="input"

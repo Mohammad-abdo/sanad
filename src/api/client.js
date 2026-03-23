@@ -17,8 +17,6 @@ apiClient.interceptors.request.use(
     const token = useAuthStore.getState().token;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-    } else {
-      console.warn('No token found in auth store');
     }
     return config;
   },
@@ -32,7 +30,13 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Unauthorized - logout user
+      const url = String(error.config?.url || '');
+      // لا نُفرغ الجلسة عند فشل تسجيل الدخول (401) — وإلا يُعاد المستخدم لصفحة الدخول دون رسالة واضحة
+      const isLoginRequest =
+        url.includes('/admin/auth/login') || url.endsWith('/auth/login');
+      if (isLoginRequest) {
+        return Promise.reject(error);
+      }
       useAuthStore.getState().logout();
       window.location.href = '/login';
     }
