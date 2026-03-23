@@ -142,6 +142,26 @@ const WalletDetails = () => {
       ),
     },
     {
+      header: 'نسبة النظام',
+      accessor: 'systemShare',
+      render: (row) => {
+        if (row.type !== 'PAYMENT') {
+          return <span className="text-sm text-gray-400">-</span>;
+        }
+
+        return (
+          <div>
+            <p className="text-sm font-semibold text-red-700">
+              {(row.systemShare || 0).toFixed(2)} ج.م
+            </p>
+            <p className="text-xs text-gray-500">
+              للطبيب: {(row.doctorShare || 0).toFixed(2)} ج.م
+            </p>
+          </div>
+        );
+      },
+    },
+    {
       header: 'الحالة',
       accessor: 'status',
       render: (row) => getStatusBadge(row),
@@ -218,6 +238,9 @@ const WalletDetails = () => {
   ];
 
   const transactions = data?.transactions || [];
+  const pendingWithdrawals = transactions.filter(
+    (tx) => tx.type === 'WITHDRAWAL' && tx.status === 'PENDING'
+  );
 
   if (isLoading) {
     return (
@@ -280,16 +303,33 @@ const WalletDetails = () => {
                 {summary.walletBalance ? `${summary.walletBalance.toFixed(2)} ج.م` : '0.00 ج.م'}
               </span>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
                 <DollarSign className="text-green-600" size={20} />
                 <div>
-                  <p className="text-sm text-gray-600">إجمالي التحصيل</p>
-                  <p className="text-xl font-bold text-green-700">{(summary.totalEarnings || 0).toFixed(2)} ج.م</p>
+                  <p className="text-sm text-gray-600">إجمالي التحصيل (قبل نسبة النظام)</p>
+                  <p className="text-xl font-bold text-green-700">{(summary.grossEarnings || 0).toFixed(2)} ج.م</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
                 <DollarSign className="text-red-600" size={20} />
+                <div>
+                  <p className="text-sm text-gray-600">ربح النظام</p>
+                  <p className="text-xl font-bold text-red-700">
+                    {(summary.systemProfit || 0).toFixed(2)} ج.م
+                    <span className="text-xs text-gray-500 mr-2">({summary.systemCommissionRate ?? 0}%)</span>
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <DollarSign className="text-blue-600" size={20} />
+                <div>
+                  <p className="text-sm text-gray-600">صافي أرباح الطبيب</p>
+                  <p className="text-xl font-bold text-blue-700">{(summary.totalEarnings || 0).toFixed(2)} ج.م</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <DollarSign className="text-orange-600" size={20} />
                 <div>
                   <p className="text-sm text-gray-600">إجمالي السحوبات</p>
                   <p className="text-xl font-bold text-red-700">{(summary.totalWithdrawals || 0).toFixed(2)} ج.م</p>
@@ -321,6 +361,25 @@ const WalletDetails = () => {
           pageSize={10}
           emptyMessage="لا توجد معاملات للمحفظة"
           title="Transactions"
+          actions={actions}
+          filters={[]}
+        />
+      </div>
+
+      {/* Pending Withdrawals (Dedicated Block) */}
+      <div className="glass-card rounded-2xl p-6 bg-white border border-gray-200">
+        <h3 className="text-xl font-bold text-gray-900 mb-4">طلبات السحب (معلقة)</h3>
+        <DataTable
+          data={pendingWithdrawals}
+          columns={columns}
+          isLoading={false}
+          searchable={false}
+          exportable={false}
+          filterable={false}
+          pagination={true}
+          pageSize={10}
+          emptyMessage="لا توجد طلبات سحب معلقة"
+          title="Pending Withdrawals"
           actions={actions}
           filters={[]}
         />

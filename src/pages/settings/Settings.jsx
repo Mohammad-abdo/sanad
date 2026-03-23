@@ -14,6 +14,7 @@ import {
   FileText,
   Bell,
   Shield,
+  Wallet,
   CheckCircle,
   XCircle,
   Loader,
@@ -34,6 +35,15 @@ const FONTS = [
   { value: 'Arial', label: 'Arial' },
   { value: 'Inter', label: 'Inter' },
   { value: 'Roboto', label: 'Roboto' },
+];
+
+const PAYMENT_METHOD_OPTIONS = [
+  { value: 'BANK_ACCOUNT', label: 'حساب بنكي' },
+  { value: 'E_WALLET', label: 'محفظة إلكترونية' },
+  { value: 'PAYPAL', label: 'PayPal' },
+  { value: 'VODAFONE_CASH', label: 'فودافون كاش' },
+  { value: 'FAWRY', label: 'فوري' },
+  { value: 'INSTAPAY', label: 'انستا باي' },
 ];
 
 const Settings = () => {
@@ -62,6 +72,13 @@ const Settings = () => {
     smsNotifications: false,
     maxPostLength: 5000,
     maxFileSize: 10485760,
+  });
+
+  // Form state for payment settings
+  const [paymentForm, setPaymentForm] = useState({
+    systemCommissionRate: 20,
+    currency: 'EGP',
+    enabledPaymentMethods: ['BANK_ACCOUNT', 'E_WALLET', 'VODAFONE_CASH', 'INSTAPAY'],
   });
 
   const { data: settingsData, isLoading, refetch } = useQuery({
@@ -96,27 +113,37 @@ const Settings = () => {
 
   // Update form state when settings data loads
   useEffect(() => {
-    if (settingsData) {
+    const rawSettings = settingsData?.data || settingsData;
+    if (rawSettings) {
       setBrandingForm({
-        appName: settingsData.appName || 'سند',
-        appNameEn: settingsData.appNameEn || 'Sanad',
-        primaryFont: settingsData.primaryFont || 'Cairo',
-        secondaryFont: settingsData.secondaryFont || 'Tajawal',
-        primaryColor: settingsData.primaryColor || '#14b8a6',
-        secondaryColor: settingsData.secondaryColor || '#64748b',
-        logo: settingsData.logo || '',
-        logoMobile: settingsData.logoMobile || '',
-        favicon: settingsData.favicon || '',
+        appName: rawSettings.appName || 'سند',
+        appNameEn: rawSettings.appNameEn || 'Sanad',
+        primaryFont: rawSettings.primaryFont || 'Cairo',
+        secondaryFont: rawSettings.secondaryFont || 'Tajawal',
+        primaryColor: rawSettings.primaryColor || '#14b8a6',
+        secondaryColor: rawSettings.secondaryColor || '#64748b',
+        logo: rawSettings.logo || '',
+        logoMobile: rawSettings.logoMobile || '',
+        favicon: rawSettings.favicon || '',
       });
 
       setGeneralForm({
-        maintenanceMode: settingsData.maintenanceMode || false,
-        registrationEnabled: settingsData.registrationEnabled !== false,
-        doctorRegistrationEnabled: settingsData.doctorRegistrationEnabled !== false,
-        emailNotifications: settingsData.emailNotifications !== false,
-        smsNotifications: settingsData.smsNotifications || false,
-        maxPostLength: settingsData.maxPostLength || 5000,
-        maxFileSize: settingsData.maxFileSize || 10485760,
+        maintenanceMode: rawSettings.maintenanceMode || false,
+        registrationEnabled: rawSettings.registrationEnabled !== false,
+        doctorRegistrationEnabled: rawSettings.doctorRegistrationEnabled !== false,
+        emailNotifications: rawSettings.emailNotifications !== false,
+        smsNotifications: rawSettings.smsNotifications || false,
+        maxPostLength: rawSettings.maxPostLength || 5000,
+        maxFileSize: rawSettings.maxFileSize || 10485760,
+      });
+
+      const paymentSettings = rawSettings.paymentSettings || {};
+      setPaymentForm({
+        systemCommissionRate: Number(paymentSettings.systemCommissionRate ?? 20),
+        currency: paymentSettings.currency || 'EGP',
+        enabledPaymentMethods: Array.isArray(paymentSettings.enabledPaymentMethods)
+          ? paymentSettings.enabledPaymentMethods
+          : ['BANK_ACCOUNT', 'E_WALLET', 'VODAFONE_CASH', 'INSTAPAY'],
       });
     }
   }, [settingsData]);
@@ -237,6 +264,30 @@ const Settings = () => {
     updateSettingsMutation.mutate(generalForm);
   };
 
+  const handlePaymentChange = (field, value) => {
+    setPaymentForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handlePaymentMethodToggle = (method, checked) => {
+    setPaymentForm((prev) => {
+      const current = new Set(prev.enabledPaymentMethods || []);
+      if (checked) current.add(method);
+      else current.delete(method);
+      return { ...prev, enabledPaymentMethods: Array.from(current) };
+    });
+  };
+
+  const handlePaymentSubmit = (e) => {
+    e.preventDefault();
+    updateSettingsMutation.mutate({
+      paymentSettings: {
+        systemCommissionRate: Number(paymentForm.systemCommissionRate || 0),
+        currency: paymentForm.currency || 'EGP',
+        enabledPaymentMethods: paymentForm.enabledPaymentMethods || [],
+      }
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -251,6 +302,7 @@ const Settings = () => {
   const tabs = [
     { id: 'branding', label: 'الهوية البصرية', icon: Image },
     { id: 'general', label: 'الإعدادات العامة', icon: SettingsIcon },
+    { id: 'payment', label: 'إعدادات المدفوعات', icon: Wallet },
     { id: 'pages', label: 'محتوى الصفحات', icon: FileText },
   ];
 
@@ -841,6 +893,93 @@ const Settings = () => {
                 );
               });
             })()}
+          </div>
+        )}
+
+        {/* Payment Settings Tab */}
+        {activeTab === 'payment' && (
+          <div className="glass-card rounded-2xl p-6 border border-gray-200">
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-12 h-12 rounded-lg bg-green-50 border border-green-200 flex items-center justify-center">
+                <Wallet className="text-green-600" size={24} />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">إعدادات المدفوعات</h3>
+                <p className="text-sm text-gray-500">تحديد نسبة النظام والعملة ووسائل الدفع</p>
+              </div>
+            </div>
+
+            <form onSubmit={handlePaymentSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="label">نسبة النظام من أرباح الأطباء (%)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    value={paymentForm.systemCommissionRate}
+                    onChange={(e) => handlePaymentChange('systemCommissionRate', Number(e.target.value))}
+                    className="input"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    هذه النسبة تخصم من كل عملية تحصيل للطبيب.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="label">العملة المستخدمة</label>
+                  <select
+                    value={paymentForm.currency}
+                    onChange={(e) => handlePaymentChange('currency', e.target.value)}
+                    className="input"
+                  >
+                    <option value="EGP">EGP - جنيه مصري</option>
+                    <option value="USD">USD - دولار</option>
+                    <option value="SAR">SAR - ريال سعودي</option>
+                    <option value="AED">AED - درهم إماراتي</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="label mb-2">وسائل الدفع المتاحة</label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {PAYMENT_METHOD_OPTIONS.map((method) => (
+                    <label
+                      key={method.value}
+                      className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-xl cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={(paymentForm.enabledPaymentMethods || []).includes(method.value)}
+                        onChange={(e) => handlePaymentMethodToggle(method.value, e.target.checked)}
+                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                      />
+                      <span className="text-sm font-medium text-gray-900">{method.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="btn-primary flex items-center gap-2 w-full md:w-auto"
+                disabled={updateSettingsMutation.isPending}
+              >
+                {updateSettingsMutation.isPending ? (
+                  <>
+                    <Loader className="animate-spin" size={18} />
+                    جاري الحفظ...
+                  </>
+                ) : (
+                  <>
+                    <Save size={18} />
+                    حفظ إعدادات المدفوعات
+                  </>
+                )}
+              </button>
+            </form>
           </div>
         )}
       </div>
