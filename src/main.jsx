@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import App from './App';
 import { ThemeSync } from './components/ThemeSync';
+import { BrandingFontsSync } from './components/BrandingFontsSync';
 import { syncHtmlThemeFromStorage } from './utils/themeHtml';
 import './index.css';
 
@@ -46,7 +47,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
                 border: '1px solid var(--toast-border, #e5e7eb)',
                 padding: '16px',
-                fontFamily: 'Cairo, Tajawal, Arial, sans-serif',
+                fontFamily: 'var(--app-font-stack, Alexandria, Cairo, Arial, sans-serif)',
               },
               success: {
                 iconTheme: {

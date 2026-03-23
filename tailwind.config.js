@@ -83,8 +83,9 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        arabic: ['Alexandria', 'Cairo', 'Tajawal', 'Arial', 'sans-serif'],
+        /* يتبع إعدادات العلامة من --app-font-stack (انظر utils/appFonts.js) */
+        sans: ['var(--app-font-stack)', 'Alexandria', 'Cairo', 'system-ui', 'sans-serif'],
+        arabic: ['var(--app-font-stack)', 'Alexandria', 'Cairo', 'Tajawal', 'Arial', 'sans-serif'],
         alexandria: ['Alexandria', 'Cairo', 'Tajawal', 'sans-serif'],
         cairo: ['Cairo', 'Tajawal', 'sans-serif'],
         tajawal: ['Tajawal', 'Arial', 'sans-serif'],

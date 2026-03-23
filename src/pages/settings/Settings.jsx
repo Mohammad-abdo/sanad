@@ -24,19 +24,12 @@ import {
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { setStoredCurrency } from '../../utils/currency';
-
-const FONTS = [
-  { value: 'Cairo', label: 'Cairo' },
-  { value: 'Tajawal', label: 'Tajawal' },
-  { value: 'Almarai', label: 'Almarai' },
-  { value: 'Changa', label: 'Changa' },
-  { value: 'IBM Plex Sans Arabic', label: 'IBM Plex Sans Arabic' },
-  { value: 'Noto Sans Arabic', label: 'Noto Sans Arabic' },
-  { value: 'Amiri', label: 'Amiri' },
-  { value: 'Arial', label: 'Arial' },
-  { value: 'Inter', label: 'Inter' },
-  { value: 'Roboto', label: 'Roboto' },
-];
+import {
+  ADMIN_FONT_OPTIONS,
+  DEFAULT_PRIMARY_FONT,
+  DEFAULT_SECONDARY_FONT,
+  applyAppFonts,
+} from '../../utils/appFonts';
 
 const PAYMENT_METHOD_OPTIONS = [
   { value: 'BANK_ACCOUNT', label: 'حساب بنكي' },
@@ -119,8 +112,8 @@ const Settings = () => {
       setBrandingForm({
         appName: rawSettings.appName || 'سند',
         appNameEn: rawSettings.appNameEn || 'Sanad',
-        primaryFont: rawSettings.primaryFont || 'Cairo',
-        secondaryFont: rawSettings.secondaryFont || 'Tajawal',
+        primaryFont: rawSettings.primaryFont || DEFAULT_PRIMARY_FONT,
+        secondaryFont: rawSettings.secondaryFont || DEFAULT_SECONDARY_FONT,
         primaryColor: rawSettings.primaryColor || '#14b8a6',
         secondaryColor: rawSettings.secondaryColor || '#64748b',
         logo: rawSettings.logo || '',
@@ -149,6 +142,27 @@ const Settings = () => {
       setStoredCurrency(paymentSettings.currency || 'EGP');
     }
   }, [settingsData]);
+
+  // معاينة مباشرة للخطوط أثناء تعديل العلامة
+  useEffect(() => {
+    applyAppFonts(brandingForm.primaryFont, brandingForm.secondaryFont);
+  }, [brandingForm.primaryFont, brandingForm.secondaryFont]);
+
+  // عند مغادرة الصفحة دون حفظ: استعادة الخط من الكاش (آخر إعدادات محفوظة)
+  useEffect(() => {
+    return () => {
+      const cached = queryClient.getQueryData(['admin-settings']);
+      const raw = cached?.data ?? cached;
+      if (raw) {
+        applyAppFonts(
+          raw.primaryFont || DEFAULT_PRIMARY_FONT,
+          raw.secondaryFont || DEFAULT_SECONDARY_FONT
+        );
+      } else {
+        applyAppFonts(DEFAULT_PRIMARY_FONT, DEFAULT_SECONDARY_FONT);
+      }
+    };
+  }, [queryClient]);
 
   // Update page forms when pages data loads
   useEffect(() => {
@@ -482,7 +496,7 @@ const Settings = () => {
                       onChange={(e) => handleBrandingChange('primaryFont', e.target.value)}
                       className="input"
                     >
-                      {FONTS.map((font) => (
+                      {ADMIN_FONT_OPTIONS.map((font) => (
                         <option key={font.value} value={font.value}>
                           {font.label}
                         </option>
@@ -496,7 +510,7 @@ const Settings = () => {
                       onChange={(e) => handleBrandingChange('secondaryFont', e.target.value)}
                       className="input"
                     >
-                      {FONTS.map((font) => (
+                      {ADMIN_FONT_OPTIONS.map((font) => (
                         <option key={font.value} value={font.value}>
                           {font.label}
                         </option>
