@@ -25,6 +25,8 @@ import Tips from './pages/tips/Tips';
 import TipDetails from './pages/tips/TipDetails';
 import Withdrawals from './pages/withdrawals/Withdrawals';
 import WithdrawalDetails from './pages/withdrawals/WithdrawalDetails';
+import Wallets from './pages/wallets/Wallets';
+import WalletDetails from './pages/wallets/WalletDetails';
 import Admins from './pages/admins/Admins';
 import AdminDetails from './pages/admins/AdminDetails';
 import DoctorDetails from './pages/doctors/DoctorDetails';
@@ -64,6 +66,8 @@ function App() {
         <Route path="/payments" element={<Payments />} />
         <Route path="/withdrawals" element={<Withdrawals />} />
         <Route path="/withdrawals/:id" element={<WithdrawalDetails />} />
+        <Route path="/wallets" element={<Wallets />} />
+        <Route path="/wallets/:id" element={<WalletDetails />} />
         <Route path="/admins" element={<Admins />} />
         <Route path="/admins/:id" element={<AdminDetails />} />
         <Route path="/support" element={<Support />} />

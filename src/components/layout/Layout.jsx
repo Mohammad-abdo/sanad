@@ -127,6 +127,7 @@ const Layout = ({ children = null }) => {
     { path: '/bookings', icon: Calendar, label: 'الحجوزات' },
     { path: '/payments', icon: DollarSign, label: 'المدفوعات' },
     { path: '/withdrawals', icon: Wallet, label: 'طلبات السحب' },
+    { path: '/wallets', icon: Wallet, label: 'محافظ الأطباء' },
     { path: '/support', icon: Headphones, label: 'الدعم' },
     { path: '/reports', icon: FileBarChart, label: 'التقارير' },
     { path: '/interests', icon: Tag, label: 'الاهتمامات' },

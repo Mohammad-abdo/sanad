@@ -131,6 +131,14 @@ export const withdrawals = {
     apiClient.put(`/admin/withdrawals/${id}/reject`, data),
 };
 
+// Wallets (doctor wallet balance + transactions)
+export const wallets = {
+  getActiveDoctorWallets: (params) =>
+    apiClient.get('/admin/wallets/doctors', { params }),
+  getDoctorWalletDetails: (doctorId) =>
+    apiClient.get(`/admin/wallets/doctors/${doctorId}`),
+};
+
 // Support
 export const support = {
   getTickets: (params) => 
