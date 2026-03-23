@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { Eye, DollarSign, Wallet } from 'lucide-react';
+import { Eye, DollarSign, Wallet, Lock, Unlock } from 'lucide-react';
+import toast from 'react-hot-toast';
 import DataTable from '../../components/common/DataTable';
 import { wallets } from '../../api/admin';
 import { useAppCurrency } from '../../utils/currency';
@@ -9,6 +10,7 @@ import { useAppCurrency } from '../../utils/currency';
 const Wallets = () => {
   const { formatMoney } = useAppCurrency();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [page] = useState(1);
   const limit = 20;
 
@@ -17,6 +19,19 @@ const Wallets = () => {
     queryFn: async () => {
       const response = await wallets.getActiveDoctorWallets({ page, limit });
       return response.data.data;
+    },
+  });
+
+  const walletStatusMutation = useMutation({
+    mutationFn: ({ doctorId, walletFrozen }) =>
+      wallets.setDoctorWalletStatus(doctorId, { walletFrozen }),
+    onSuccess: (_, variables) => {
+      toast.success(variables.walletFrozen ? 'تم إيقاف المحفظة' : 'تم تفعيل المحفظة');
+      queryClient.invalidateQueries({ queryKey: ['wallets'] });
+      queryClient.invalidateQueries({ queryKey: ['wallet-details'] });
+    },
+    onError: (err) => {
+      toast.error(err?.response?.data?.error?.message || 'فشل تحديث حالة المحفظة');
     },
   });
 
@@ -78,6 +93,22 @@ const Wallets = () => {
         </span>
       ),
     },
+    {
+      header: 'حالة المحفظة',
+      accessor: 'walletFrozen',
+      render: (row) =>
+        row.walletFrozen ? (
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-semibold bg-red-50 text-red-700 border border-red-200">
+            <Lock size={14} />
+            موقوفة
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-semibold bg-green-50 text-green-700 border border-green-200">
+            <Unlock size={14} />
+            نشطة
+          </span>
+        ),
+    },
   ];
 
   const actions = [
@@ -87,6 +118,26 @@ const Wallets = () => {
       onClick: (row) => navigate(`/wallets/${row.doctorId}`),
       className: 'text-primary-600 hover:bg-primary-50',
       show: () => true,
+    },
+    {
+      label: 'إيقاف المحفظة',
+      icon: Lock,
+      onClick: (row) => {
+        if (walletStatusMutation.isPending || row.walletFrozen) return;
+        walletStatusMutation.mutate({ doctorId: row.doctorId, walletFrozen: true });
+      },
+      className: 'text-amber-600 hover:bg-amber-50',
+      show: (row) => !row.walletFrozen,
+    },
+    {
+      label: 'تفعيل المحفظة',
+      icon: Unlock,
+      onClick: (row) => {
+        if (walletStatusMutation.isPending || !row.walletFrozen) return;
+        walletStatusMutation.mutate({ doctorId: row.doctorId, walletFrozen: false });
+      },
+      className: 'text-green-600 hover:bg-green-50',
+      show: (row) => row.walletFrozen,
     },
   ];
 
@@ -105,7 +156,9 @@ const Wallets = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">محافظ الأطباء</h1>
-          <p className="text-sm text-gray-600">إدارة رصيد الطبيب + معاملات المحفظة</p>
+          <p className="text-sm text-gray-600">
+            إدارة رصيد الطبيب، إيقاف/تفعيل المحفظة (يمنع طلبات السحب الجديدة من تطبيق الطبيب)، ومعالجة السحوبات من صفحة التفاصيل
+          </p>
         </div>
       </div>
 

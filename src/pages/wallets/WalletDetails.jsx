@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
@@ -18,6 +18,8 @@ import {
   Eye,
   ArrowUp,
   ArrowDown,
+  Lock,
+  Unlock,
 } from 'lucide-react';
 import { useAppCurrency } from '../../utils/currency';
 
@@ -25,10 +27,11 @@ const WalletDetails = () => {
   const { formatMoney } = useAppCurrency();
   const { id } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const [rejectModalOpen, setRejectModalOpen] = useState(false);
-  const [rejectReason, setRejectReason] = useState('');
-  const [selectedWithdrawalId, setSelectedWithdrawalId] = useState(null);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [reviewRequest, setReviewRequest] = useState(null);
+  const [reviewRejectReason, setReviewRejectReason] = useState('');
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['wallet-details', id],
@@ -53,13 +56,25 @@ const WalletDetails = () => {
     mutationFn: ({ withdrawalId, reason }) => withdrawals.reject(withdrawalId, { reason }),
     onSuccess: () => {
       toast.success('تم رفض طلب السحب');
-      setRejectModalOpen(false);
-      setRejectReason('');
-      setSelectedWithdrawalId(null);
+      setReviewModalOpen(false);
+      setReviewRequest(null);
+      setReviewRejectReason('');
       refetch();
     },
     onError: (err) => {
       toast.error(err?.response?.data?.error?.message || 'فشل رفض طلب السحب');
+    },
+  });
+
+  const walletStatusMutation = useMutation({
+    mutationFn: (walletFrozen) => wallets.setDoctorWalletStatus(id, { walletFrozen }),
+    onSuccess: (_, walletFrozen) => {
+      toast.success(walletFrozen ? 'تم إيقاف المحفظة' : 'تم تفعيل المحفظة');
+      refetch();
+      queryClient.invalidateQueries({ queryKey: ['wallets'] });
+    },
+    onError: (err) => {
+      toast.error(err?.response?.data?.error?.message || 'فشل تحديث حالة المحفظة');
     },
   });
 
@@ -221,20 +236,14 @@ const WalletDetails = () => {
 
   const actions = [
     {
-      label: 'موافقة',
-      icon: CheckCircle,
-      onClick: (row) => approveMutation.mutate(row.id),
-      className: 'text-green-600 hover:bg-green-50',
-      show: (row) => row.type === 'WITHDRAWAL' && row.status === 'PENDING',
-    },
-    {
-      label: 'رفض',
-      icon: XCircle,
+      label: 'مراجعة الطلب',
+      icon: Eye,
       onClick: (row) => {
-        setSelectedWithdrawalId(row.id);
-        setRejectModalOpen(true);
+        setReviewRequest(row);
+        setReviewRejectReason('');
+        setReviewModalOpen(true);
       },
-      className: 'text-red-600 hover:bg-red-50',
+      className: 'text-primary-600 hover:bg-primary-50',
       show: (row) => row.type === 'WITHDRAWAL' && row.status === 'PENDING',
     },
   ];
@@ -278,10 +287,22 @@ const WalletDetails = () => {
   const doctor = data.doctor || {};
   const summary = data.summary || {};
 
+  const parsedAccountDetails = (() => {
+    if (!reviewRequest?.accountDetails) return null;
+    try {
+      if (typeof reviewRequest.accountDetails === 'string') {
+        return JSON.parse(reviewRequest.accountDetails);
+      }
+      return reviewRequest.accountDetails;
+    } catch {
+      return { raw: String(reviewRequest.accountDetails) };
+    }
+  })();
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <button
           onClick={() => navigate('/wallets')}
           className="flex items-center gap-2 text-gray-600 hover:text-primary-600 transition-colors"
@@ -290,7 +311,40 @@ const WalletDetails = () => {
           <ArrowRight size={20} />
           <span>العودة</span>
         </button>
+        <div className="flex items-center gap-2">
+          {doctor.walletFrozen ? (
+            <button
+              type="button"
+              disabled={walletStatusMutation.isPending}
+              onClick={() => walletStatusMutation.mutate(false)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-green-600 text-white hover:bg-green-700 transition-colors disabled:opacity-50 text-sm font-semibold"
+            >
+              <Unlock size={18} />
+              تفعيل المحفظة
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled={walletStatusMutation.isPending}
+              onClick={() => walletStatusMutation.mutate(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-600 text-white hover:bg-amber-700 transition-colors disabled:opacity-50 text-sm font-semibold"
+            >
+              <Lock size={18} />
+              إيقاف المحفظة
+            </button>
+          )}
+        </div>
       </div>
+
+      {doctor.walletFrozen && (
+        <div
+          className="glass-card rounded-xl p-4 border border-red-200 bg-red-50/80 text-red-800 text-sm"
+          dir="rtl"
+        >
+          <strong>المحفظة موقوفة:</strong> لا يمكن للطبيب إنشاء طلبات سحب جديدة من التطبيق. يمكنك
+          الموافقة أو رفض الطلبات المعلقة أدناه.
+        </div>
+      )}
 
       {/* Wallet Summary */}
       <div className="glass-card rounded-2xl p-8 bg-white border border-primary-200">
@@ -387,52 +441,101 @@ const WalletDetails = () => {
         />
       </div>
 
-      {/* Reject Modal */}
+      {/* Review Withdrawal Request Modal */}
       <Modal
-        isOpen={rejectModalOpen}
+        isOpen={reviewModalOpen}
         onClose={() => {
-          setRejectModalOpen(false);
-          setRejectReason('');
-          setSelectedWithdrawalId(null);
+          setReviewModalOpen(false);
+          setReviewRequest(null);
+          setReviewRejectReason('');
         }}
-        title="تأكيد رفض طلب السحب"
-        size="sm"
+        title="مراجعة طلب السحب"
+        size="md"
       >
-        <div className="space-y-3 text-gray-700" dir="rtl">
-          <p className="text-sm">يرجى كتابة سبب الرفض:</p>
-          <textarea
-            value={rejectReason}
-            onChange={(e) => setRejectReason(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-200 bg-white"
-            placeholder="سبب الرفض..."
-            rows={4}
-          />
+        <div className="space-y-4 text-gray-700" dir="rtl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="p-3 rounded-xl bg-gray-50 border border-gray-200">
+              <p className="text-xs text-gray-500 mb-1">رقم الطلب</p>
+              <p className="text-sm font-semibold text-gray-900">{reviewRequest?.id || '-'}</p>
+            </div>
+            <div className="p-3 rounded-xl bg-gray-50 border border-gray-200">
+              <p className="text-xs text-gray-500 mb-1">المبلغ</p>
+              <p className="text-sm font-semibold text-gray-900">{formatMoney(reviewRequest?.amount || 0)}</p>
+            </div>
+            <div className="p-3 rounded-xl bg-gray-50 border border-gray-200">
+              <p className="text-xs text-gray-500 mb-1">طريقة السحب</p>
+              <p className="text-sm font-semibold text-gray-900">{reviewRequest?.method || '-'}</p>
+            </div>
+            <div className="p-3 rounded-xl bg-gray-50 border border-gray-200">
+              <p className="text-xs text-gray-500 mb-1">تاريخ الطلب</p>
+              <p className="text-sm font-semibold text-gray-900">
+                {reviewRequest?.createdAt
+                  ? new Date(reviewRequest.createdAt).toLocaleString('ar-EG')
+                  : '-'}
+              </p>
+            </div>
+          </div>
+
+          <div className="p-3 rounded-xl bg-gray-50 border border-gray-200">
+            <p className="text-xs text-gray-500 mb-2">تفاصيل الحساب</p>
+            <pre className="text-xs text-gray-800 whitespace-pre-wrap break-words">
+              {parsedAccountDetails ? JSON.stringify(parsedAccountDetails, null, 2) : 'لا توجد تفاصيل'}
+            </pre>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700 mb-2 block">
+              سبب الرفض (اختياري للموافقة - مطلوب للرفض)
+            </label>
+            <textarea
+              value={reviewRejectReason}
+              onChange={(e) => setReviewRejectReason(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-200 bg-white"
+              placeholder="اكتب سبب الرفض إذا كنت ستقوم بالرفض..."
+              rows={3}
+            />
+          </div>
+
           <div className="flex items-center justify-end gap-2 pt-2">
             <button
               onClick={() => {
-                setRejectModalOpen(false);
-                setRejectReason('');
-                setSelectedWithdrawalId(null);
+                setReviewModalOpen(false);
+                setReviewRequest(null);
+                setReviewRejectReason('');
               }}
               className="px-4 py-2 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
               type="button"
-              disabled={rejectMutation.isPending}
+              disabled={approveMutation.isPending || rejectMutation.isPending}
             >
               إلغاء
             </button>
             <button
               onClick={() => {
-                if (!rejectReason.trim()) {
+                if (!reviewRequest?.id) return;
+                approveMutation.mutate(reviewRequest.id);
+                setReviewModalOpen(false);
+                setReviewRequest(null);
+                setReviewRejectReason('');
+              }}
+              className="px-4 py-2 rounded-xl bg-green-600 text-white hover:bg-green-700 transition-colors disabled:opacity-50"
+              type="button"
+              disabled={!reviewRequest?.id || approveMutation.isPending || rejectMutation.isPending}
+            >
+              {approveMutation.isPending ? 'جاري الموافقة...' : 'موافقة'}
+            </button>
+            <button
+              onClick={() => {
+                if (!reviewRejectReason.trim()) {
                   toast.error('يرجى إدخال سبب الرفض');
                   return;
                 }
-                if (selectedWithdrawalId) {
-                  rejectMutation.mutate({ withdrawalId: selectedWithdrawalId, reason: rejectReason });
+                if (reviewRequest?.id) {
+                  rejectMutation.mutate({ withdrawalId: reviewRequest.id, reason: reviewRejectReason });
                 }
               }}
               className="px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50"
               type="button"
-              disabled={rejectMutation.isPending || !selectedWithdrawalId}
+              disabled={!reviewRequest?.id || approveMutation.isPending || rejectMutation.isPending}
             >
               {rejectMutation.isPending ? 'جاري الرفض...' : 'رفض'}
             </button>

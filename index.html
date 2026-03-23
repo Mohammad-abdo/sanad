@@ -1,6 +1,25 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
   <head>
+    <script>
+      (function () {
+        try {
+          var r = document.documentElement;
+          var raw = localStorage.getItem('sanad-theme');
+          var t = 'light';
+          if (raw) {
+            var p = JSON.parse(raw);
+            if (p && p.state && p.state.theme === 'dark') t = 'dark';
+          }
+          r.dataset.theme = t;
+          if (t === 'dark') r.classList.add('dark');
+          else r.classList.remove('dark');
+        } catch (e) {
+          document.documentElement.dataset.theme = 'light';
+          document.documentElement.classList.remove('dark');
+        }
+      })();
+    </script>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

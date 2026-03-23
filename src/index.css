@@ -3,14 +3,66 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --toast-bg: #ffffff;
+    --toast-fg: #1f2937;
+    --toast-border: #e5e7eb;
+    --dash-surface: #f8fafc;
+    --dash-elevated: rgba(255, 255, 255, 0.82);
+  }
+
+  /* متغيرات الوضع الداكن فقط على <html class="dark"> — لا تُطبَّق بالخطأ في الوضع الفاتح */
+  html.dark {
+    --toast-bg: #1e293b;
+    --toast-fg: #f1f5f9;
+    --toast-border: #334155;
+    --dash-surface: #020617;
+    --dash-elevated: rgba(30, 41, 59, 0.85);
+    color-scheme: dark;
+    color: #f1f5f9;
+  }
+
+  html:not(.dark) {
+    color-scheme: light;
+    color: #111827;
+  }
+
   * {
     @apply border-transparent;
   }
+
+  html {
+    @apply antialiased;
+  }
+
+  /* خلفية الصفحة كاملة — الوضع الفاتح لا يبقى شفافاً فوق لون غامض */
+  html:not(.dark),
+  html:not(.dark) #root {
+    background-color: #f8fafc;
+  }
+
+  html.dark,
+  html.dark #root {
+    background-color: #020617;
+  }
+
   body {
-    background: #f8fafc;
-    @apply text-gray-900;
+    background: var(--dash-surface);
+    @apply text-gray-900 dark:text-slate-100;
     font-family: 'Alexandria', 'Cairo', 'Tajawal', 'Arial', sans-serif;
     min-height: 100vh;
+    transition: background-color 0.35s ease, color 0.35s ease;
+  }
+
+  /* وضع فاتح واضح (خلفية فاتحة ونص داكن) */
+  html:not(.dark) body {
+    background-color: #f8fafc;
+    color: #111827;
+  }
+
+  html.dark body {
+    background-color: #020617;
+    color: #f1f5f9;
   }
 }
 
@@ -62,6 +114,101 @@
     background: rgba(255, 255, 255, 0.85);
     transform: translateY(-2px);
     box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.15);
+  }
+
+  html.dark .glass {
+    background: rgba(30, 41, 59, 0.72);
+    border-color: rgba(100, 116, 139, 0.35);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+  }
+
+  html.dark .glass-strong {
+    background: rgba(30, 41, 59, 0.92);
+    border-color: rgba(71, 85, 105, 0.5);
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+  }
+
+  html.dark .glass-sidebar {
+    background: rgba(15, 23, 42, 0.92);
+    border-right-color: rgba(99, 102, 241, 0.12);
+    box-shadow: 8px 0 40px 0 rgba(0, 0, 0, 0.35);
+  }
+
+  html.dark .glass-header {
+    background: rgba(15, 23, 42, 0.88);
+    border-bottom-color: rgba(51, 65, 85, 0.6);
+    box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.35);
+  }
+
+  html.dark .glass-card {
+    background: rgba(15, 23, 42, 0.92);
+    border: 1px solid rgba(71, 85, 105, 0.55);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+  }
+
+  html.dark .glass-card:hover {
+    background: rgba(30, 41, 59, 0.95);
+    box-shadow: 0 16px 48px 0 rgba(0, 0, 0, 0.55);
+  }
+
+  /* الوضع الفاتح: زجاج أوضح وأقل “بهتاناً” */
+  html:not(.dark) .glass-sidebar {
+    background: rgba(255, 255, 255, 0.96);
+    border-right-color: rgba(226, 232, 240, 0.95);
+  }
+
+  html:not(.dark) .glass-header {
+    background: rgba(255, 255, 255, 0.96);
+    border-bottom-color: rgba(226, 232, 240, 0.9);
+  }
+
+  html:not(.dark) .glass-card {
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(241, 245, 249, 0.95);
+  }
+
+  html:not(.dark) .glass-card:hover {
+    background: #ffffff;
+  }
+
+  /* تهدئة البقع البيضاء في الوضع الداكن فقط (scoped إلى html.dark) */
+  html.dark .bg-white {
+    background-color: rgba(15, 23, 42, 0.88) !important;
+  }
+
+  html.dark .bg-gray-50 {
+    background-color: rgba(15, 23, 42, 0.78) !important;
+  }
+
+  html.dark .bg-gray-100 {
+    background-color: rgba(30, 41, 59, 0.8) !important;
+  }
+
+  html.dark .border-gray-200 {
+    border-color: rgba(71, 85, 105, 0.65) !important;
+  }
+
+  html.dark .glass-btn {
+    background: rgba(51, 65, 85, 0.6);
+    border-color: rgba(71, 85, 105, 0.6);
+    color: #e2e8f0;
+  }
+
+  html.dark .glass-btn:hover {
+    background: rgba(71, 85, 105, 0.75);
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.35);
+  }
+
+  html.dark .input {
+    @apply bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500;
+  }
+
+  html.dark .label {
+    @apply text-slate-300;
+  }
+
+  html.dark .btn-secondary {
+    @apply bg-slate-800/50 text-slate-200 border-slate-600 hover:bg-slate-700/60;
   }
   
   .btn-primary {
@@ -124,6 +271,18 @@
   background: rgba(148, 163, 184, 0.9);
 }
 
+html.dark ::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.85);
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.95);
+}
+
 /* Sidebar Navigation Scrollbar */
 aside nav::-webkit-scrollbar {
   width: 4px;
@@ -142,6 +301,10 @@ aside nav::-webkit-scrollbar-thumb:hover {
   background: rgba(148, 163, 184, 0.7);
 }
 
+html.dark aside nav::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.45);
+}
+
 /* DataTable Sticky Header */
 .data-table-container {
   position: relative;
@@ -154,6 +317,10 @@ aside nav::-webkit-scrollbar-thumb:hover {
   background-color: #f9fafb;
 }
 
+html.dark .data-table-container thead th {
+  background-color: #0f172a;
+}
+
 .data-table-container thead th::after {
   content: '';
   position: absolute;
@@ -162,5 +329,107 @@ aside nav::-webkit-scrollbar-thumb:hover {
   right: 0;
   height: 1px;
   background-color: #e5e7eb;
+}
+
+html.dark .data-table-container thead th::after {
+  background-color: #334155;
+}
+
+/* =============================================================================
+   تباين النص على البطاقات — يتبع data-theme (نفس مصدر زر المظهر / Zustand)
+   يمنع نصاً فاتحاً على بطاقة بيضاء عند اختلاف html.dark عن الوضع الفعلي
+   ============================================================================= */
+
+[data-theme='light'] .glass-card,
+[data-theme='light'] .glass-strong {
+  color: #0f172a;
+}
+
+[data-theme='light'] .glass-card .text-gray-900,
+[data-theme='light'] .glass-card .text-gray-800,
+[data-theme='light'] .glass-strong .text-gray-900,
+[data-theme='light'] .glass-strong .text-gray-800 {
+  color: #0f172a !important;
+}
+
+[data-theme='light'] .glass-card .text-gray-700,
+[data-theme='light'] .glass-strong .text-gray-700 {
+  color: #1e293b !important;
+}
+
+[data-theme='light'] .glass-card .text-gray-600,
+[data-theme='light'] .glass-card .text-gray-500,
+[data-theme='light'] .glass-strong .text-gray-600,
+[data-theme='light'] .glass-strong .text-gray-500 {
+  color: #475569 !important;
+}
+
+[data-theme='light'] .glass-card .text-gray-400,
+[data-theme='light'] .glass-strong .text-gray-400 {
+  color: #64748b !important;
+}
+
+[data-theme='light'] .glass-card .text-slate-900,
+[data-theme='light'] .glass-card .text-slate-800,
+[data-theme='light'] .glass-card .text-slate-700,
+[data-theme='light'] .glass-strong .text-slate-900,
+[data-theme='light'] .glass-strong .text-slate-800,
+[data-theme='light'] .glass-strong .text-slate-700 {
+  color: #0f172a !important;
+}
+
+[data-theme='light'] .glass-card .text-slate-600,
+[data-theme='light'] .glass-card .text-slate-500,
+[data-theme='light'] .glass-card .text-slate-400,
+[data-theme='light'] .glass-strong .text-slate-600,
+[data-theme='light'] .glass-strong .text-slate-500,
+[data-theme='light'] .glass-strong .text-slate-400 {
+  color: #475569 !important;
+}
+
+[data-theme='dark'] .glass-card,
+[data-theme='dark'] .glass-strong {
+  color: #f1f5f9;
+}
+
+[data-theme='dark'] .glass-card .text-gray-900,
+[data-theme='dark'] .glass-card .text-gray-800,
+[data-theme='dark'] .glass-card .text-gray-700,
+[data-theme='dark'] .glass-strong .text-gray-900,
+[data-theme='dark'] .glass-strong .text-gray-800,
+[data-theme='dark'] .glass-strong .text-gray-700 {
+  color: #f8fafc !important;
+}
+
+[data-theme='dark'] .glass-card .text-gray-600,
+[data-theme='dark'] .glass-card .text-gray-500,
+[data-theme='dark'] .glass-strong .text-gray-600,
+[data-theme='dark'] .glass-strong .text-gray-500 {
+  color: #cbd5e1 !important;
+}
+
+[data-theme='dark'] .glass-card .text-gray-400,
+[data-theme='dark'] .glass-card .text-gray-300,
+[data-theme='dark'] .glass-strong .text-gray-400,
+[data-theme='dark'] .glass-strong .text-gray-300 {
+  color: #94a3b8 !important;
+}
+
+[data-theme='dark'] .glass-card .text-slate-900,
+[data-theme='dark'] .glass-card .text-slate-800,
+[data-theme='dark'] .glass-card .text-slate-700,
+[data-theme='dark'] .glass-strong .text-slate-900,
+[data-theme='dark'] .glass-strong .text-slate-800,
+[data-theme='dark'] .glass-strong .text-slate-700 {
+  color: #f8fafc !important;
+}
+
+[data-theme='dark'] .glass-card .text-slate-600,
+[data-theme='dark'] .glass-card .text-slate-500,
+[data-theme='dark'] .glass-card .text-slate-400,
+[data-theme='dark'] .glass-strong .text-slate-600,
+[data-theme='dark'] .glass-strong .text-slate-500,
+[data-theme='dark'] .glass-strong .text-slate-400 {
+  color: #cbd5e1 !important;
 }
 

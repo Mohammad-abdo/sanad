@@ -137,6 +137,8 @@ export const wallets = {
     apiClient.get('/admin/wallets/doctors', { params }),
   getDoctorWalletDetails: (doctorId) =>
     apiClient.get(`/admin/wallets/doctors/${doctorId}`),
+  setDoctorWalletStatus: (doctorId, data) =>
+    apiClient.put(`/admin/wallets/doctors/${doctorId}/status`, data),
 };
 
 // Support

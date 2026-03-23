@@ -32,17 +32,21 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import { useThemeStore } from '../../store/themeStore';
 import { notifications } from '../../api/admin';
 import toast from 'react-hot-toast';
 
 const Layout = ({ children = null }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [previousUnreadCount, setPreviousUnreadCount] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
   const { admin, logout } = useAuthStore();
+  const theme = useThemeStore((s) => s.theme);
+  const toggleTheme = useThemeStore((s) => s.toggleTheme);
   const userDropdownRef = useRef(null);
   const notificationsRef = useRef(null);
   const queryClient = useQueryClient();
@@ -165,39 +169,71 @@ const Layout = ({ children = null }) => {
     navigate('/login');
   };
 
+  // Close mobile drawer after route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  const desktopNavLink = (active, expanded) =>
+    `relative flex items-center rounded-xl text-sm font-medium transition-all duration-200 ${
+      expanded ? 'gap-3 px-3 py-2.5' : 'justify-center px-2 py-3'
+    } ${
+      active
+        ? 'bg-gradient-to-l from-primary-600 to-primary-500 text-white shadow-md shadow-primary-500/25'
+        : 'text-slate-600 hover:bg-slate-100/90 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/70 dark:hover:text-white'
+    }`;
+
+  const mobileNavLink = (active) =>
+    `relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+      active
+        ? 'bg-gradient-to-l from-primary-600 to-primary-500 text-white shadow-md shadow-primary-500/25'
+        : 'text-slate-600 hover:bg-slate-100/90 dark:text-slate-300 dark:hover:bg-slate-800/70'
+    }`;
+
   return (
-    <div className="flex h-screen relative overflow-hidden bg-gray-50">
-      {/* Sidebar */}
+    <div
+      className={`relative flex h-screen overflow-hidden ${
+        theme === 'dark' ? 'bg-slate-950' : 'bg-[#f8fafc]'
+      }`}
+    >
+
+      {/* Sidebar — مكتب: لوحة عائمة حديثة */}
       <aside
-        className={`${
-          sidebarOpen ? 'w-72' : 'w-20'
-        } glass-sidebar transition-all duration-300 flex flex-col relative z-10 shadow-xl`}
+        className={`relative z-10 hidden h-[calc(100vh-2rem)] shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white/95 shadow-xl shadow-slate-200/40 backdrop-blur-xl transition-all duration-300 ease-out dark:border-slate-700/50 dark:bg-slate-900/95 dark:shadow-black/30 md:flex ${
+          sidebarOpen ? 'my-4 ms-4 w-[17.5rem]' : 'my-4 ms-4 w-[4.25rem]'
+        }`}
       >
-        {/* Logo Section */}
-        <div className="p-6 border-b border-gray-200/50 bg-white">
-          <div className="flex items-center justify-between">
-            {sidebarOpen && (
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white border-2 border-primary-500 flex items-center justify-center shadow-lg">
-                  <span className="text-primary-600 font-bold text-lg">س</span>
+        <div className="border-b border-slate-200/80 bg-gradient-to-br from-primary-500/[0.08] via-transparent to-transparent px-4 py-5 dark:border-slate-700/60">
+          <div
+            className={`flex items-center ${sidebarOpen ? 'justify-between gap-2' : 'flex-col gap-3'}`}
+          >
+            {sidebarOpen ? (
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 text-lg font-bold text-white shadow-lg shadow-primary-500/30">
+                  س
                 </div>
-                <div>
-                  <h1 className="text-xl font-bold text-primary-600">سند</h1>
-                  <p className="text-xs text-gray-500">لوحة التحكم</p>
+                <div className="min-w-0">
+                  <h1 className="truncate text-lg font-bold text-slate-900 dark:text-white">سند</h1>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400">لوحة التحكم</p>
                 </div>
+              </div>
+            ) : (
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 text-lg font-bold text-white shadow-lg shadow-primary-500/30">
+                س
               </div>
             )}
             <button
+              type="button"
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 rounded-xl glass-btn text-gray-700 hover:text-primary-600 hover:bg-gray-50 border border-gray-200 hover:border-primary-200 transition-all duration-300"
+              className="shrink-0 rounded-xl border border-slate-200/90 p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-primary-600 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
+              aria-label={sidebarOpen ? 'طي القائمة' : 'توسيع القائمة'}
             >
-              {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+              {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto custom-scrollbar">
+        <nav className="custom-scrollbar flex flex-1 flex-col gap-1 overflow-y-auto px-2 py-3">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.path);
@@ -205,43 +241,29 @@ const Layout = ({ children = null }) => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 relative transform hover:scale-[1.02] ${
-                  active
-                    ? 'bg-white text-primary-600 shadow-lg border-2 border-primary-500 scale-[1.02]'
-                    : 'text-gray-700 hover:bg-white hover:text-primary-600 hover:shadow-md hover:border hover:border-primary-200'
-                }`}
+                onClick={() => setMobileMenuOpen(false)}
+                title={!sidebarOpen ? item.label : undefined}
+                className={desktopNavLink(active, sidebarOpen)}
               >
-                <div className={`relative ${active ? 'text-primary-600' : 'text-gray-500 group-hover:text-primary-600'} transition-colors`}>
-                  <Icon size={20} />
-                </div>
-                {sidebarOpen && (
-                  <span className={`font-medium flex-1 ${active ? 'text-primary-600' : 'text-gray-700 group-hover:text-primary-600'} transition-colors`}>
-                    {item.label}
-                  </span>
-                )}
-                {active && sidebarOpen && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary-600 rounded-r-full shadow-lg"></div>
-                )}
+                <Icon className="shrink-0" size={20} strokeWidth={active ? 2.25 : 2} />
+                {sidebarOpen && <span className="min-w-0 flex-1 truncate">{item.label}</span>}
               </Link>
             );
           })}
         </nav>
 
-        {/* User Info - Only show when sidebar is open */}
         {sidebarOpen && (
-          <div className="p-4 border-t border-gray-200/50 bg-white">
-            <div className="glass-card rounded-xl p-4 border border-gray-200">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-xl bg-white border-2 border-primary-500 flex items-center justify-center shadow-lg">
-                  <span className="text-primary-600 font-bold text-base">
-                    {admin?.name?.charAt(0) || 'A'}
-                  </span>
+          <div className="border-t border-slate-200/80 p-3 dark:border-slate-700/60">
+            <div className="glass-card rounded-xl border border-slate-200/80 p-3 dark:border-slate-600/50">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 text-sm font-bold text-white shadow-md">
+                  {admin?.name?.charAt(0) || 'A'}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-gray-900 truncate">{admin?.name || 'Admin'}</p>
-                  <p className="text-xs text-gray-500 truncate">{admin?.email || 'admin@sanad.com'}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-bold text-gray-900 dark:text-white">{admin?.name || 'Admin'}</p>
+                  <p className="truncate text-xs text-gray-500 dark:text-slate-400">{admin?.email || 'admin@sanad.com'}</p>
                   {admin?.role && (
-                    <span className="inline-block mt-1 px-2 py-0.5 bg-white border border-primary-300 text-primary-700 rounded text-xs font-semibold">
+                    <span className="mt-1 inline-block rounded-lg bg-primary-500/15 px-2 py-0.5 text-xs font-semibold text-primary-700 dark:bg-primary-500/20 dark:text-primary-300">
                       {admin.role === 'SUPER_ADMIN' ? 'مدير عام' : admin.role === 'ADMIN' ? 'أدمن' : admin.role}
                     </span>
                   )}
@@ -252,35 +274,134 @@ const Layout = ({ children = null }) => {
         )}
       </aside>
 
+      {/* Mobile Sidebar Backdrop */}
+      {mobileMenuOpen && (
+        <button
+          type="button"
+          aria-label="Close menu"
+          onClick={() => setMobileMenuOpen(false)}
+          className="fixed inset-0 z-30 bg-black/40 md:hidden"
+        />
+      )}
+
+      {/* Mobile Sidebar Drawer — نفس الهوية */}
+      <aside
+        className={`fixed right-2 top-2 z-40 flex h-[calc(100vh-1rem)] w-[min(18rem,calc(100vw-1rem))] flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white/95 shadow-2xl shadow-slate-300/40 backdrop-blur-xl transition-transform duration-300 ease-out dark:border-slate-700/50 dark:bg-slate-900/95 dark:shadow-black/40 md:hidden ${
+          mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div className="flex h-full flex-col">
+          <div className="border-b border-slate-200/80 bg-gradient-to-br from-primary-500/[0.08] via-transparent to-transparent px-4 py-5 dark:border-slate-700/60">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 text-lg font-bold text-white shadow-lg shadow-primary-500/30">
+                  س
+                </div>
+                <div className="min-w-0">
+                  <h1 className="truncate text-lg font-bold text-slate-900 dark:text-white">سند</h1>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400">لوحة التحكم</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(false)}
+                className="shrink-0 rounded-xl border border-slate-200/90 p-2 text-slate-600 transition-colors hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
+                aria-label="إغلاق القائمة"
+              >
+                <X size={18} />
+              </button>
+            </div>
+          </div>
+
+          <nav className="custom-scrollbar flex flex-1 flex-col gap-1 overflow-y-auto px-2 py-3">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.path);
+              return (
+                <Link
+                  key={`mobile-${item.path}`}
+                  to={item.path}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={mobileNavLink(active)}
+                >
+                  <Icon className="shrink-0" size={20} strokeWidth={active ? 2.25 : 2} />
+                  <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="border-t border-slate-200/80 p-3 dark:border-slate-700/60">
+            <div className="glass-card rounded-xl border border-slate-200/80 p-3 dark:border-slate-600/50">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 text-sm font-bold text-white shadow-md">
+                  {admin?.name?.charAt(0) || 'A'}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-bold text-gray-900 dark:text-white">{admin?.name || 'Admin'}</p>
+                  <p className="truncate text-xs text-gray-500 dark:text-slate-400">{admin?.email || 'admin@sanad.com'}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden relative">
+      <div
+        className={`relative flex min-w-0 flex-1 flex-col overflow-hidden ${
+          theme === 'dark' ? 'bg-slate-950' : 'bg-[#f8fafc]'
+        }`}
+      >
         {/* Header */}
-        <header className="glass-header px-6 py-4 relative z-50 overflow-visible">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">
-                {menuItems.find(item => item.path === location.pathname)?.label || 'لوحة التحكم'}
+        <header className="glass-header relative z-50 overflow-visible px-6 py-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(true)}
+                className="md:hidden rounded-xl border border-gray-200 p-2 text-gray-700 transition-all duration-300 hover:border-primary-200 hover:bg-gray-50 hover:text-primary-600 dark:border-slate-600 dark:text-slate-200 dark:hover:border-primary-500/40 dark:hover:bg-slate-800/80 dark:hover:text-primary-300"
+                aria-label="Open menu"
+              >
+                <Menu size={20} />
+              </button>
+              <div className="min-w-0">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                {menuItems.find((item) => item.path === location.pathname)?.label || 'لوحة التحكم'}
               </h2>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="mt-1 text-xs sm:text-sm text-gray-600 dark:text-slate-400 truncate">
                 {new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               </p>
             </div>
-            <div className="flex items-center gap-4 relative z-50 overflow-visible">
+            </div>
+            <div className="relative z-50 flex items-center gap-3 overflow-visible sm:gap-4">
               {/* Search */}
               <div className="relative hidden md:block">
-                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400 dark:text-slate-500" size={18} />
                 <input
                   type="text"
                   placeholder="بحث..."
-                  className="input pl-10 pr-10 py-2 w-64"
+                  className="input w-64 py-2 pl-10 pr-10"
                 />
               </div>
+
+              {/* Light / Dark */}
+              <button
+                type="button"
+                onClick={() => toggleTheme()}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white/90 text-amber-600 shadow-sm transition-all hover:border-primary-300 hover:text-primary-600 dark:border-slate-600 dark:bg-slate-800/90 dark:text-amber-300 dark:hover:border-primary-500/50 dark:hover:text-primary-300"
+                title={theme === 'dark' ? 'الوضع الفاتح' : 'الوضع الداكن'}
+                aria-label={theme === 'dark' ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع الداكن'}
+              >
+                {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+              </button>
 
               {/* Notifications */}
               <div className="relative z-[100] overflow-visible" ref={notificationsRef}>
                 <button
+                  type="button"
                   onClick={() => setNotificationsOpen(!notificationsOpen)}
-                  className="relative p-2 text-gray-600 hover:text-primary-600 hover:bg-gray-50 border border-gray-200 hover:border-primary-300 rounded-xl transition-all duration-300 z-[100]"
+                  className="relative z-[100] rounded-xl border border-gray-200 p-2 text-gray-600 transition-all duration-300 hover:border-primary-300 hover:bg-gray-50 hover:text-primary-600 dark:border-slate-600 dark:text-slate-300 dark:hover:border-primary-500/40 dark:hover:bg-slate-800/80 dark:hover:text-primary-300"
                 >
                   <Bell size={20} />
                   {unreadCount > 0 && (
@@ -301,7 +422,7 @@ const Layout = ({ children = null }) => {
                                 markAllAsReadMutation.mutate();
                                 setNotificationsOpen(false);
                               }}
-                              className="p-1.5 text-gray-600 hover:text-primary-600 hover:bg-gray-100 rounded transition-colors"
+                              className="rounded p-1.5 text-gray-600 transition-colors hover:bg-gray-100 hover:text-primary-600 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-primary-300"
                               title="تحديد الكل كمقروء"
                             >
                               <CheckCheck size={16} />
@@ -312,7 +433,7 @@ const Layout = ({ children = null }) => {
                               handleClearAll();
                               setNotificationsOpen(false);
                             }}
-                            className="p-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                            className="rounded p-1.5 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/40"
                             title="مسح الكل"
                           >
                             <Trash2 size={16} />
@@ -343,10 +464,12 @@ const Layout = ({ children = null }) => {
                                 <div className="w-2 h-2 bg-primary-600 rounded-full mt-2 flex-shrink-0"></div>
                               )}
                               <div className="flex-1 min-w-0">
-                                <p className={`text-sm ${notification.isRead ? 'text-gray-600' : 'text-gray-900 font-semibold'}`}>
+                                <p
+                                  className={`text-sm ${notification.isRead ? 'text-gray-600 dark:text-slate-400' : 'font-semibold text-gray-900 dark:text-white'}`}
+                                >
                                   {notification.message || notification.title}
                                 </p>
-                                <p className="text-xs text-gray-500 mt-1">
+                                <p className="mt-1 text-xs text-gray-500 dark:text-slate-500">
                                   {new Date(notification.createdAt).toLocaleDateString('ar-EG', {
                                     year: 'numeric',
                                     month: 'short',
@@ -360,18 +483,18 @@ const Layout = ({ children = null }) => {
                           </div>
                         ))
                       ) : (
-                        <div className="p-8 text-center text-gray-500">
-                          <Bell className="mx-auto mb-2 text-gray-400" size={32} />
+                        <div className="p-8 text-center text-gray-500 dark:text-slate-400">
+                          <Bell className="mx-auto mb-2 text-gray-400 dark:text-slate-600" size={32} />
                           <p>لا توجد إشعارات</p>
                         </div>
                       )}
                     </div>
                     {notificationsList.length > 0 && (
-                      <div className="p-3 border-t border-gray-200 text-center">
+                      <div className="border-t border-gray-200 p-3 text-center dark:border-slate-600/60">
                         <Link
                           to="/notifications"
                           onClick={() => setNotificationsOpen(false)}
-                          className="text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
+                          className="text-sm font-medium text-primary-600 transition-colors hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
                         >
                           عرض الكل
                         </Link>
@@ -384,6 +507,7 @@ const Layout = ({ children = null }) => {
               {/* User Dropdown */}
               <div className="relative z-[100] overflow-visible" ref={userDropdownRef}>
                 <button
+                  type="button"
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
                   className="flex items-center gap-3 px-3 py-2 rounded-xl glass-btn text-gray-700 hover:bg-gray-50 transition-all duration-300 z-[100]"
                 >
@@ -441,10 +565,8 @@ const Layout = ({ children = null }) => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-6 relative z-0">
-          <div className="relative">
-            {children || <Outlet />}
-          </div>
+        <main className="flex-1 overflow-y-auto p-3 sm:p-6 relative z-0">
+          <div className="relative w-full">{children || <Outlet />}</div>
         </main>
       </div>
     </div>

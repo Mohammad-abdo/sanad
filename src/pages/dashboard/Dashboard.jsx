@@ -21,11 +21,26 @@ import {
   Target,
   Zap
 } from 'lucide-react';
-import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, RadialBarChart, RadialBar } from 'recharts';
+import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useAppCurrency } from '../../utils/currency';
+import { useThemeStore } from '../../store/themeStore';
 
 const Dashboard = () => {
   const { currency, formatMoney } = useAppCurrency();
+  const theme = useThemeStore((s) => s.theme);
+  const isDark = theme === 'dark';
+
+  const gridStroke = isDark ? '#475569' : '#e2e8f0';
+  const axisTick = { fill: isDark ? '#94a3b8' : '#64748b', fontSize: 11 };
+  const chartTooltipStyle = {
+    backgroundColor: isDark ? '#1e293b' : '#ffffff',
+    border: isDark ? '1px solid #334155' : '1px solid #e5e7eb',
+    borderRadius: '12px',
+    color: isDark ? '#f1f5f9' : '#111827',
+    boxShadow: isDark ? '0 10px 40px rgba(0,0,0,0.45)' : '0 4px 20px rgba(0,0,0,0.08)',
+  };
+  const legendStyle = { color: isDark ? '#cbd5e1' : '#475569', fontSize: 12 };
+
   const { data: stats, isLoading, isError, error } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: async () => {
@@ -99,10 +114,10 @@ const Dashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <div className="text-gray-700 font-medium">جاري التحميل...</div>
+      <div className="flex h-64 items-center justify-center">
+        <div className="glass-card rounded-2xl p-8">
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-primary-600 dark:border-primary-400" />
+          <div className="font-medium text-gray-700 dark:text-slate-300">جاري التحميل...</div>
         </div>
       </div>
     );
@@ -134,17 +149,17 @@ const Dashboard = () => {
   const COLORS = ['#875FD8', '#A384E1', '#C2ADEB'];
 
   return (
-    <div className="space-y-6">
+    <div className="w-full space-y-6">
       {/* Welcome Header */}
-      <div className="glass-card rounded-2xl p-6 bg-white border border-primary-200">
-        <div className="flex items-center justify-between">
+      <div className="glass-card rounded-2xl border border-primary-200/80 bg-gradient-to-br from-white/95 via-primary-50/30 to-white/90 p-6 dark:border-primary-500/25 dark:from-slate-900/75 dark:via-primary-950/20 dark:to-slate-900/65">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">مرحباً بك في لوحة التحكم</h1>
-            <p className="text-gray-600">نظرة عامة على أداء النظام والإحصائيات</p>
+            <h1 className="mb-1 text-2xl font-bold text-gray-900 dark:text-white">مرحباً بك في لوحة التحكم</h1>
+            <p className="text-gray-600 dark:text-slate-400">نظرة عامة على أداء النظام والإحصائيات</p>
           </div>
-          <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-sm border border-primary-200">
-            <Clock className="text-primary-600" size={18} />
-            <span className="text-sm font-medium text-gray-700">
+          <div className="hidden items-center gap-2 rounded-xl border border-primary-200/80 bg-white/90 px-4 py-2 shadow-sm backdrop-blur-sm dark:border-primary-500/30 dark:bg-slate-800/80 md:flex">
+            <Clock className="text-primary-600 dark:text-primary-400" size={18} />
+            <span className="text-sm font-medium text-gray-700 dark:text-slate-200">
               {new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </span>
           </div>
@@ -152,38 +167,40 @@ const Dashboard = () => {
       </div>
 
       {/* Stats Cards - Modern Design */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {statCards.map((stat, index) => {
           const Icon = stat.icon;
           const isPositive = stat.changeType === 'positive';
           return (
-            <div 
-              key={index} 
-              className="glass-card rounded-2xl p-6 hover:shadow-xl transition-all duration-300 group border border-gray-200 hover:border-primary-400"
+            <div
+              key={index}
+              className="group glass-card rounded-2xl border border-gray-200/90 p-6 transition-all duration-300 hover:border-primary-400/80 hover:shadow-xl dark:border-slate-600/50 dark:hover:border-primary-500/40"
             >
-              <div className="flex items-start justify-between mb-4">
-                <div className={`${stat.iconBg} p-3 rounded-xl group-hover:scale-110 transition-transform duration-300 border border-primary-200`}>
-                  <Icon className={stat.iconColor} size={24} />
+              <div className="mb-4 flex items-start justify-between">
+                <div
+                  className={`${stat.iconBg} rounded-xl border border-primary-200/80 p-3 transition-transform duration-300 group-hover:scale-110 dark:border-primary-500/30 dark:bg-slate-800/80`}
+                >
+                  <Icon className={`${stat.iconColor} dark:text-primary-300`} size={24} />
                 </div>
                 {isPositive ? (
-                  <div className="flex items-center gap-1 px-2 py-1 bg-green-50 rounded-lg">
-                    <ArrowUpRight className="text-green-600" size={14} />
-                    <span className="text-xs font-semibold text-green-600">{stat.change}</span>
+                  <div className="flex items-center gap-1 rounded-lg bg-green-50 px-2 py-1 dark:bg-emerald-950/40">
+                    <ArrowUpRight className="text-green-600 dark:text-emerald-400" size={14} />
+                    <span className="text-xs font-semibold text-green-600 dark:text-emerald-400">{stat.change}</span>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-1 px-2 py-1 bg-red-50 rounded-lg">
-                    <ArrowDownRight className="text-red-600" size={14} />
-                    <span className="text-xs font-semibold text-red-600">{stat.change}</span>
+                  <div className="flex items-center gap-1 rounded-lg bg-red-50 px-2 py-1 dark:bg-red-950/35">
+                    <ArrowDownRight className="text-red-600 dark:text-red-400" size={14} />
+                    <span className="text-xs font-semibold text-red-600 dark:text-red-400">{stat.change}</span>
                   </div>
                 )}
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500 mb-1">{stat.title}</p>
-                <p className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</p>
-                <p className="text-xs text-gray-400">{stat.subtitle}</p>
+                <p className="mb-1 text-sm font-medium text-gray-500 dark:text-slate-400">{stat.title}</p>
+                <p className="mb-1 text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+                <p className="text-xs text-gray-400 dark:text-slate-500">{stat.subtitle}</p>
               </div>
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <div className="flex items-center gap-2 text-xs text-gray-500">
+              <div className="mt-4 border-t border-gray-100 pt-4 dark:border-slate-700/60">
+                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-slate-400">
                   {isPositive ? (
                     <TrendingUp className="text-green-500" size={12} />
                   ) : (
@@ -198,59 +215,60 @@ const Dashboard = () => {
       </div>
 
       {/* Quick Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="glass-card rounded-xl p-4 flex items-center gap-3">
-          <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center border border-primary-200">
-            <CheckCircle className="text-primary-600" size={20} />
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div className="glass-card flex items-center gap-3 rounded-xl p-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-primary-200 bg-gray-100 dark:border-primary-500/30 dark:bg-slate-800/80">
+            <CheckCircle className="text-primary-600 dark:text-primary-400" size={20} />
           </div>
           <div>
-            <p className="text-xs text-gray-500">الحجوزات المكتملة</p>
-            <p className="text-lg font-bold text-gray-900">{stats?.completedBookings || 0}</p>
+            <p className="text-xs text-gray-500 dark:text-slate-400">الحجوزات المكتملة</p>
+            <p className="text-lg font-bold text-gray-900 dark:text-white">{stats?.completedBookings || 0}</p>
           </div>
         </div>
-        <div className="glass-card rounded-xl p-4 flex items-center gap-3">
-          <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center border border-primary-200">
-            <Clock className="text-primary-600" size={20} />
+        <div className="glass-card flex items-center gap-3 rounded-xl p-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-primary-200 bg-gray-100 dark:border-primary-500/30 dark:bg-slate-800/80">
+            <Clock className="text-primary-600 dark:text-primary-400" size={20} />
           </div>
           <div>
-            <p className="text-xs text-gray-500">الحجوزات المعلقة</p>
-            <p className="text-lg font-bold text-gray-900">{stats?.pendingBookings || 0}</p>
+            <p className="text-xs text-gray-500 dark:text-slate-400">الحجوزات المعلقة</p>
+            <p className="text-lg font-bold text-gray-900 dark:text-white">{stats?.pendingBookings || 0}</p>
           </div>
         </div>
-        <div className="glass-card rounded-xl p-4 flex items-center gap-3">
-          <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center border border-primary-200">
-            <XCircle className="text-primary-600" size={20} />
+        <div className="glass-card flex items-center gap-3 rounded-xl p-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-primary-200 bg-gray-100 dark:border-primary-500/30 dark:bg-slate-800/80">
+            <XCircle className="text-primary-600 dark:text-primary-400" size={20} />
           </div>
           <div>
-            <p className="text-xs text-gray-500">الحجوزات الملغاة</p>
-            <p className="text-lg font-bold text-gray-900">{stats?.cancelledBookings || 0}</p>
+            <p className="text-xs text-gray-500 dark:text-slate-400">الحجوزات الملغاة</p>
+            <p className="text-lg font-bold text-gray-900 dark:text-white">{stats?.cancelledBookings || 0}</p>
           </div>
         </div>
-        <div className="glass-card rounded-xl p-4 flex items-center gap-3">
-          <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center border border-primary-200">
-            <Target className="text-primary-600" size={20} />
+        <div className="glass-card flex items-center gap-3 rounded-xl p-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-primary-200 bg-gray-100 dark:border-primary-500/30 dark:bg-slate-800/80">
+            <Target className="text-primary-600 dark:text-primary-400" size={20} />
           </div>
           <div>
-            <p className="text-xs text-gray-500">معدل النجاح</p>
-            <p className="text-lg font-bold text-gray-900">94%</p>
+            <p className="text-xs text-gray-500 dark:text-slate-400">معدل النجاح</p>
+            <p className="text-lg font-bold text-gray-900 dark:text-white">94%</p>
           </div>
         </div>
       </div>
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Charts Row — min-w-0 يمنع تمدد غريب على الشاشات العريضة */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Revenue Chart */}
-        <div className="glass-card rounded-2xl p-6 hover:shadow-xl transition-shadow duration-300">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h3 className="text-lg font-bold text-gray-900">الإيرادات والحجوزات</h3>
-              <p className="text-sm text-gray-500 mt-1">آخر 6 أشهر</p>
+        <div className="glass-card min-w-0 rounded-2xl p-6 transition-shadow duration-300 hover:shadow-xl">
+          <div className="mb-6 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">الإيرادات والحجوزات</h3>
+              <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">آخر 6 أشهر</p>
             </div>
-            <div className="p-2 bg-gray-100 rounded-lg border border-primary-200">
-              <BarChart3 className="text-primary-600" size={20} />
+            <div className="shrink-0 rounded-lg border border-primary-200 bg-gray-100 p-2 dark:border-primary-500/30 dark:bg-slate-800/80">
+              <BarChart3 className="text-primary-600 dark:text-primary-400" size={20} />
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={300}>
+          <div className="h-[300px] w-full min-w-0">
+            <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={revenueData}>
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
@@ -262,17 +280,11 @@ const Dashboard = () => {
                   <stop offset="95%" stopColor="#22c55e" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-              <XAxis dataKey="name" className="text-xs" />
-              <YAxis className="text-xs" />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: '#fff', 
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px'
-                }} 
-              />
-              <Legend />
+              <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} opacity={0.55} />
+              <XAxis dataKey="name" tick={axisTick} />
+              <YAxis tick={axisTick} />
+              <Tooltip contentStyle={chartTooltipStyle} />
+              <Legend wrapperStyle={legendStyle} />
               <Area 
                 type="monotone" 
                 dataKey="revenue" 
@@ -290,33 +302,29 @@ const Dashboard = () => {
                 name="الحجوزات"
               />
             </AreaChart>
-          </ResponsiveContainer>
+            </ResponsiveContainer>
+          </div>
         </div>
 
         {/* User Growth Chart */}
-        <div className="glass-card rounded-2xl p-6 hover:shadow-xl transition-shadow duration-300">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h3 className="text-lg font-bold text-gray-900">نمو المستخدمين والأطباء</h3>
-              <p className="text-sm text-gray-500 mt-1">آخر 4 أسابيع</p>
+        <div className="glass-card min-w-0 rounded-2xl p-6 transition-shadow duration-300 hover:shadow-xl">
+          <div className="mb-6 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">نمو المستخدمين والأطباء</h3>
+              <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">آخر 4 أسابيع</p>
             </div>
-            <div className="p-2 bg-gray-100 rounded-lg border border-primary-200">
-              <TrendingUp className="text-primary-600" size={20} />
+            <div className="shrink-0 rounded-lg border border-primary-200 bg-gray-100 p-2 dark:border-primary-500/30 dark:bg-slate-800/80">
+              <TrendingUp className="text-primary-600 dark:text-primary-400" size={20} />
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={300}>
+          <div className="h-[300px] w-full min-w-0">
+            <ResponsiveContainer width="100%" height="100%">
             <LineChart data={userGrowthData}>
-              <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-              <XAxis dataKey="name" className="text-xs" />
-              <YAxis className="text-xs" />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: '#fff', 
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px'
-                }} 
-              />
-              <Legend />
+              <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} opacity={0.55} />
+              <XAxis dataKey="name" tick={axisTick} />
+              <YAxis tick={axisTick} />
+              <Tooltip contentStyle={chartTooltipStyle} />
+              <Legend wrapperStyle={legendStyle} />
               <Line 
                 type="monotone" 
                 dataKey="users" 
@@ -334,24 +342,26 @@ const Dashboard = () => {
                 name="الأطباء"
               />
             </LineChart>
-          </ResponsiveContainer>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 
       {/* Bottom Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Status Distribution */}
-        <div className="glass-card rounded-2xl p-6 hover:shadow-xl transition-shadow duration-300">
-          <div className="flex items-center justify-between mb-6">
+        <div className="glass-card min-w-0 rounded-2xl p-6 transition-shadow duration-300 hover:shadow-xl">
+          <div className="mb-6 flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-bold text-gray-900">توزيع الحالات</h3>
-              <p className="text-sm text-gray-500 mt-1">حالة المستخدمين</p>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">توزيع الحالات</h3>
+              <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">حالة المستخدمين</p>
             </div>
-            <div className="p-2 bg-gray-100 rounded-lg border border-primary-200">
-              <PieChartIcon className="text-primary-600" size={20} />
+            <div className="rounded-lg border border-primary-200 bg-gray-100 p-2 dark:border-primary-500/30 dark:bg-slate-800/80">
+              <PieChartIcon className="text-primary-600 dark:text-primary-400" size={20} />
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={250}>
+          <div className="h-[250px] w-full min-w-0">
+            <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={statusData}
@@ -367,51 +377,52 @@ const Dashboard = () => {
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip contentStyle={chartTooltipStyle} />
             </PieChart>
-          </ResponsiveContainer>
+            </ResponsiveContainer>
+          </div>
         </div>
 
         {/* Recent Activity */}
-        <div className="lg:col-span-2 glass-card rounded-2xl p-6 hover:shadow-xl transition-shadow duration-300">
-          <div className="flex items-center justify-between mb-6">
+        <div className="glass-card col-span-1 min-w-0 rounded-2xl p-6 transition-shadow duration-300 hover:shadow-xl lg:col-span-2">
+          <div className="mb-6 flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-bold text-gray-900">النشاط الأخير</h3>
-              <p className="text-sm text-gray-500 mt-1">آخر 10 أنشطة</p>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">النشاط الأخير</h3>
+              <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">آخر 10 أنشطة</p>
             </div>
-            <div className="p-2 bg-gray-100 rounded-lg border border-primary-200">
-              <Zap className="text-primary-600" size={20} />
+            <div className="rounded-lg border border-primary-200 bg-gray-100 p-2 dark:border-primary-500/30 dark:bg-slate-800/80">
+              <Zap className="text-primary-600 dark:text-primary-400" size={20} />
             </div>
           </div>
-          <div className="space-y-2 max-h-64 overflow-y-auto">
+          <div className="max-h-64 space-y-2 overflow-y-auto">
             {stats?.recentActivity?.length > 0 ? (
               stats.recentActivity.map((activity, index) => (
-                <div 
-                  key={index} 
-                  className="flex items-center gap-4 p-4 bg-gradient-to-r from-gray-50 to-white rounded-xl border border-gray-100 hover:border-primary-200 hover:shadow-md transition-all duration-300 group"
+                <div
+                  key={index}
+                  className="group flex items-center gap-4 rounded-xl border border-gray-100 bg-gradient-to-r from-gray-50 to-white p-4 transition-all duration-300 hover:border-primary-200 hover:shadow-md dark:border-slate-700/50 dark:from-slate-800/40 dark:to-slate-900/30 dark:hover:border-primary-500/35"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-gray-100 border border-primary-200 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                    <Activity className="text-primary-600" size={18} />
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary-200 bg-gray-100 transition-transform group-hover:scale-110 dark:border-primary-500/30 dark:bg-slate-800/80">
+                    <Activity className="text-primary-600 dark:text-primary-400" size={18} />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 truncate">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">
                       {activity.adminName || 'System'} - {activity.action} {activity.entityType}
                     </p>
-                    <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                    <p className="mt-1 flex items-center gap-1 text-xs text-gray-500 dark:text-slate-400">
                       <Clock size={12} />
                       {new Date(activity.time).toLocaleString('ar-EG')}
                     </p>
                   </div>
-                  <div className="w-2 h-2 bg-primary-600 rounded-full flex-shrink-0 animate-pulse"></div>
+                  <div className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-primary-600 dark:bg-primary-400" />
                 </div>
               ))
             ) : (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
-                  <Activity className="text-gray-400" size={32} />
+              <div className="py-12 text-center">
+                <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-800/80">
+                  <Activity className="text-gray-400 dark:text-slate-500" size={32} />
                 </div>
-                <p className="text-gray-500 font-medium">لا يوجد نشاط حديث</p>
-                <p className="text-xs text-gray-400 mt-1">سيظهر النشاط هنا عند حدوث أي إجراء</p>
+                <p className="font-medium text-gray-500 dark:text-slate-400">لا يوجد نشاط حديث</p>
+                <p className="mt-1 text-xs text-gray-400 dark:text-slate-500">سيظهر النشاط هنا عند حدوث أي إجراء</p>
               </div>
             )}
           </div>
