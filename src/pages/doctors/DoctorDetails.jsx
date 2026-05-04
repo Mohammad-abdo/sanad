@@ -23,16 +23,12 @@ import {
   Wallet
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import Modal from '../../components/common/Modal';
-import { useState } from 'react';
 import { useAppCurrency } from '../../utils/currency';
 
 const DoctorDetails = () => {
   const { formatMoney } = useAppCurrency();
   const { id } = useParams();
   const navigate = useNavigate();
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editingDoctor, setEditingDoctor] = useState(null);
 
   const { data: doctor, isLoading, error, refetch } = useQuery({
     queryKey: ['doctor-details', id],
@@ -151,10 +147,8 @@ const DoctorDetails = () => {
             </button>
           )}
           <button
-            onClick={() => {
-              setEditingDoctor(doctor);
-              setShowEditModal(true);
-            }}
+            type="button"
+            onClick={() => navigate(`/doctors/${id}/edit`)}
             className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors"
           >
             <Edit size={18} />

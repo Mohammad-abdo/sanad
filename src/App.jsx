@@ -30,6 +30,7 @@ import WalletDetails from './pages/wallets/WalletDetails';
 import Admins from './pages/admins/Admins';
 import AdminDetails from './pages/admins/AdminDetails';
 import DoctorDetails from './pages/doctors/DoctorDetails';
+import DoctorForm from './pages/doctors/DoctorForm';
 import Onboarding from './pages/onboarding/Onboarding';
 import OnboardingDetails from './pages/onboarding/OnboardingDetails';
 import Notifications from './pages/notifications/Notifications';
@@ -59,6 +60,8 @@ function App() {
         <Route path="/users" element={<Users />} />
         <Route path="/users/:id" element={<UserDetails />} />
         <Route path="/doctors" element={<Doctors />} />
+        <Route path="/doctors/new" element={<DoctorForm />} />
+        <Route path="/doctors/:id/edit" element={<DoctorForm />} />
         <Route path="/doctors/:id" element={<DoctorDetails />} />
         <Route path="/posts" element={<Posts />} />
         <Route path="/bookings" element={<Bookings />} />

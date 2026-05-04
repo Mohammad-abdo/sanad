@@ -7,15 +7,12 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { getApiErrorMessage } from '../../utils/apiError';
 import DataTable from '../../components/common/DataTable';
-import Modal from '../../components/common/Modal';
 
 const Doctors = () => {
   const navigate = useNavigate();
   const { admin } = useAuthStore();
   const canDeleteDoctor = admin?.role === 'SUPER_ADMIN' || admin?.role === 'ADMIN';
   const [page, setPage] = useState(1);
-  const [showModal, setShowModal] = useState(false);
-  const [editingDoctor, setEditingDoctor] = useState(null);
   const limit = 20;
 
   const { data, isLoading, refetch } = useQuery({
@@ -23,32 +20,6 @@ const Doctors = () => {
     queryFn: async () => {
       const response = await doctors.getAll({ page, limit });
       return response.data;
-    },
-  });
-
-  const createMutation = useMutation({
-    mutationFn: doctors.create,
-    onSuccess: () => {
-      toast.success('تم إضافة الطبيب بنجاح');
-      setShowModal(false);
-      setEditingDoctor(null);
-      refetch();
-    },
-    onError: (e) => {
-      toast.error(getApiErrorMessage(e, 'فشل إضافة الطبيب'));
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => doctors.update(id, data),
-    onSuccess: () => {
-      toast.success('تم تحديث الطبيب بنجاح');
-      setShowModal(false);
-      setEditingDoctor(null);
-      refetch();
-    },
-    onError: (e) => {
-      toast.error(getApiErrorMessage(e, 'فشل تحديث الطبيب'));
     },
   });
 
@@ -128,30 +99,6 @@ const Doctors = () => {
       toast.error(getApiErrorMessage(e, 'فشل حذف الطبيب'));
     },
   });
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const data = {
-      name: formData.get('name'),
-      email: formData.get('email'),
-      password: formData.get('password') || undefined,
-      specialization: formData.get('specialization'),
-      phone: formData.get('phone') || undefined,
-      bio: formData.get('bio') || undefined,
-      isApproved: formData.get('isApproved') === 'on',
-    };
-
-    if (editingDoctor) {
-      updateMutation.mutate({ id: editingDoctor.id, data });
-    } else {
-      if (!data.password) {
-        toast.error('كلمة المرور مطلوبة للأطباء الجدد');
-        return;
-      }
-      createMutation.mutate(data);
-    }
-  };
 
   const doctorsList = data?.data?.doctors || [];
   const total = data?.data?.pagination?.total || doctorsList.length;
@@ -288,8 +235,7 @@ const Doctors = () => {
       label: 'تعديل',
       icon: Edit,
       onClick: (row) => {
-        setEditingDoctor(row);
-        setShowModal(true);
+        navigate(`/doctors/${row.id}/edit`);
       },
       className: 'text-blue-600 hover:bg-blue-50',
       show: () => true,
@@ -360,10 +306,8 @@ const Doctors = () => {
           <p className="text-sm text-gray-500 mt-1">إدارة جميع الأطباء في النظام</p>
         </div>
         <button
-          onClick={() => {
-            setEditingDoctor(null);
-            setShowModal(true);
-          }}
+          type="button"
+          onClick={() => navigate('/doctors/new')}
           className="btn-primary flex items-center gap-2"
         >
           <Plus size={20} />
@@ -476,114 +420,6 @@ const Doctors = () => {
           }
         ]}
       />
-
-      {/* Create/Edit Modal */}
-      <Modal
-        isOpen={showModal}
-        onClose={() => {
-          setShowModal(false);
-          setEditingDoctor(null);
-        }}
-        title={editingDoctor ? 'تعديل طبيب' : 'إضافة طبيب جديد'}
-        size="lg"
-      >
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="label">الاسم *</label>
-              <input
-                name="name"
-                type="text"
-                defaultValue={editingDoctor?.name}
-                className="input"
-                required
-              />
-            </div>
-            <div>
-              <label className="label">البريد الإلكتروني *</label>
-              <input
-                name="email"
-                type="email"
-                defaultValue={editingDoctor?.email}
-                className="input"
-                required
-              />
-            </div>
-          </div>
-          <div>
-            <label className="label">
-              كلمة المرور {editingDoctor && '(اتركه فارغاً للحفاظ على الكلمة الحالية)'} *
-            </label>
-            <input
-              name="password"
-              type="password"
-              className="input"
-              required={!editingDoctor}
-              minLength={6}
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="label">التخصص *</label>
-              <input
-                name="specialization"
-                type="text"
-                defaultValue={editingDoctor?.specialization}
-                className="input"
-                required
-              />
-            </div>
-            <div>
-              <label className="label">رقم الهاتف</label>
-              <input
-                name="phone"
-                type="tel"
-                defaultValue={editingDoctor?.phone}
-                className="input"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="label">السيرة الذاتية</label>
-            <textarea
-              name="bio"
-              defaultValue={editingDoctor?.bio}
-              className="input min-h-[100px]"
-              rows={4}
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                name="isApproved"
-                type="checkbox"
-                defaultChecked={editingDoctor?.isApproved ?? true}
-                className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-              />
-              <span className="text-sm text-gray-700">موافق عليه</span>
-            </label>
-          </div>
-          <div className="flex gap-2 pt-4">
-            <button 
-              type="submit" 
-              className="btn-primary flex-1"
-              disabled={createMutation.isPending || updateMutation.isPending}
-            >
-              {editingDoctor ? 'تحديث' : 'إضافة'}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setShowModal(false);
-                setEditingDoctor(null);
-              }}
-              className="btn-secondary"
-            >
-              إلغاء
-            </button>
-          </div>
-        </form>
-      </Modal>
     </div>
   );
 };
