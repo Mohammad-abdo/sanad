@@ -15,10 +15,13 @@ const features = [
 ];
 
 const Login = () => {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, login } = useAuthStore();
   const navigate = useNavigate();
   const setTheme = useThemeStore((s) => s.setTheme);
   const [hydrated, setHydrated] = useState(() => useAuthStore.persist.hasHydrated());
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const { data: brandingRes, isLoading: brandingLoading } = useQuery({
     queryKey: ['public-admin-branding'],
@@ -50,11 +53,6 @@ const Login = () => {
       setTheme(branding.dashboardTheme);
     }
   }, [branding, setTheme]);
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { login } = useAuthStore();
 
   const appName = branding?.appName || 'سند';
   const appNameEn = branding?.appNameEn || 'Sanad';

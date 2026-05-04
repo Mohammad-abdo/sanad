@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
+import { normalizeApiBaseUrl } from './baseUrl.js';
 
-// Force port 3005 - ensure it's always used
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_URL = normalizeApiBaseUrl(import.meta.env.VITE_API_URL || 'http://localhost:3000/api');
 
 const apiClient = axios.create({
   baseURL: API_URL,
@@ -29,17 +29,29 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    const url = String(error.config?.url || '');
+    const isLoginRequest =
+      url.includes('/admin/auth/login') || url.endsWith('/auth/login');
+
     if (error.response?.status === 401) {
-      const url = String(error.config?.url || '');
-      // لا نُفرغ الجلسة عند فشل تسجيل الدخول (401) — وإلا يُعاد المستخدم لصفحة الدخول دون رسالة واضحة
-      const isLoginRequest =
-        url.includes('/admin/auth/login') || url.endsWith('/auth/login');
       if (isLoginRequest) {
         return Promise.reject(error);
       }
       useAuthStore.getState().logout();
       window.location.href = '/login';
+      return Promise.reject(error);
     }
+
+    // Invalid / inactive admin session (production DB mismatch, wrong role in token, etc.)
+    if (error.response?.status === 403 && url.includes('/admin/') && !isLoginRequest) {
+      const code = error.response?.data?.error?.code;
+      if (['ADMIN_NOT_FOUND', 'ACCOUNT_INACTIVE', 'UNAUTHORIZED'].includes(code)) {
+        useAuthStore.getState().logout();
+        window.location.href = '/login';
+        return Promise.reject(error);
+      }
+    }
+
     return Promise.reject(error);
   }
 );

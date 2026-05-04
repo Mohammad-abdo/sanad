@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { normalizeApiBaseUrl } from './baseUrl.js';
 
 // Public API client (no authentication required)
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_URL = normalizeApiBaseUrl(import.meta.env.VITE_API_URL || 'http://localhost:3000/api');
 
 const publicApiClient = axios.create({
   baseURL: API_URL,
