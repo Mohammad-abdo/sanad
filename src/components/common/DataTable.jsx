@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -20,9 +20,11 @@ import {
   ChevronDown,
   SlidersHorizontal
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import Papa from 'papaparse';
+import { getApiErrorMessage } from '../../utils/apiError';
 
 const DataTable = ({
   data = [],
@@ -41,11 +43,14 @@ const DataTable = ({
   emptyMessage = 'لا توجد بيانات',
   title = '',
   filters = [], // Array of filter configs: { key, label, type: 'text'|'select'|'date'|'dateRange'|'number'|'numberRange'|'boolean'|'multiSelect', options?: [] }
+  /** Stable row id for list keys: field name or (row) => string */
+  rowId = 'id',
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(initialPageSize);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  /** Sort by column index so we can use column.sortValue(row) for computed columns */
+  const [sortConfig, setSortConfig] = useState({ colIndex: null, direction: 'asc' });
   const [selectedRows, setSelectedRows] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [columnFilters, setColumnFilters] = useState({});
@@ -190,24 +195,49 @@ const DataTable = ({
     });
   }, [data, searchTerm, columnFilters, dateRangeFilters, numberRangeFilters, columns, filterConfigs]);
 
-  // Sort data
+  const resolveRowKey = useCallback(
+    (row, index) => {
+      if (typeof rowId === 'function') {
+        const k = rowId(row);
+        return k != null && k !== '' ? String(k) : `row-${index}`;
+      }
+      const k = row[rowId];
+      return k != null && k !== '' ? String(k) : `row-${index}`;
+    },
+    [rowId]
+  );
+
+  // Sort data (supports sortValue(row) and sortKey; skips invalid accessors like fake "status")
   const sortedData = useMemo(() => {
-    if (!sortConfig.key) return filteredData;
-    
+    if (sortConfig.colIndex == null) return filteredData;
+    const column = columns[sortConfig.colIndex];
+    if (!column || column.sortable === false) return filteredData;
+
     return [...filteredData].sort((a, b) => {
-      const aValue = a[sortConfig.key];
-      const bValue = b[sortConfig.key];
-      
-      // Handle null/undefined
+      let aValue;
+      let bValue;
+      if (typeof column.sortValue === 'function') {
+        aValue = column.sortValue(a);
+        bValue = column.sortValue(b);
+      } else {
+        const field = column.sortKey || column.accessor;
+        if (!field) return 0;
+        aValue = a[field];
+        bValue = b[field];
+      }
+
       if (aValue == null && bValue == null) return 0;
       if (aValue == null) return 1;
       if (bValue == null) return -1;
-      
+
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
+      }
       if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
       if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
       return 0;
     });
-  }, [filteredData, sortConfig]);
+  }, [filteredData, sortConfig, columns]);
 
   // Paginate data
   const totalPages = Math.ceil(sortedData.length / pageSize);
@@ -215,11 +245,16 @@ const DataTable = ({
   const endIndex = startIndex + pageSize;
   const paginatedData = pagination ? sortedData.slice(startIndex, endIndex) : sortedData;
 
-  const handleSort = (key) => {
-    setSortConfig({
-      key,
-      direction: sortConfig.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc',
-    });
+  const handleSort = (colIndex) => {
+    const column = columns[colIndex];
+    if (!column || column.sortable === false) return;
+    if (typeof column.sortValue !== 'function' && !column.sortKey && !column.accessor) {
+      return;
+    }
+    setSortConfig((prev) => ({
+      colIndex,
+      direction: prev.colIndex === colIndex && prev.direction === 'asc' ? 'desc' : 'asc',
+    }));
   };
 
   const handlePageChange = (page) => {
@@ -390,11 +425,11 @@ const DataTable = ({
   // Loading state
   if (isLoading) {
     return (
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+      <div className="bg-white dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden">
         <div className="p-12">
           <div className="flex flex-col items-center justify-center">
-            <Loader2 className="animate-spin text-gray-400 mb-3" size={24} />
-            <p className="text-sm text-gray-500 font-medium">جاري التحميل...</p>
+            <Loader2 className="animate-spin text-primary-500 mb-3" size={24} />
+            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">جاري التحميل...</p>
           </div>
         </div>
       </div>
@@ -402,10 +437,10 @@ const DataTable = ({
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+    <div className="admin-datatable-surface bg-white dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden">
       {/* Header */}
       {(title || searchable || exportable || filterable) && (
-        <div className="px-5 py-4 border-b border-gray-200 bg-gray-50">
+        <div className="px-5 py-4 border-b border-slate-200/80 dark:border-slate-700 bg-slate-50/90 dark:bg-slate-800/50">
           <div className="flex flex-col gap-3">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               {title && (
@@ -617,21 +652,25 @@ const DataTable = ({
 
       {/* Table Container */}
       <div className="overflow-x-auto data-table-container">
-        <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
+        <table className="w-full min-w-[640px]">
+          <thead className="bg-slate-50/90 dark:bg-slate-800/60 border-b border-slate-200/80 dark:border-slate-700">
             <tr>
-              {columns.map((column, index) => (
+              {columns.map((column, index) => {
+                const canSort =
+                  column.sortable !== false &&
+                  (typeof column.sortValue === 'function' || column.sortKey || column.accessor);
+                return (
                 <th
                   key={index}
-                  className={`px-4 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider ${getColumnAlignment(column)} ${
-                    column.sortable !== false ? 'cursor-pointer hover:bg-gray-100 transition-colors select-none' : ''
+                  className={`px-4 py-3 text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider ${getColumnAlignment(column)} ${
+                    canSort ? 'cursor-pointer hover:bg-slate-100/90 dark:hover:bg-slate-700/50 transition-colors select-none' : ''
                   }`}
-                  onClick={() => column.sortable !== false && handleSort(column.accessor || column.key)}
+                  onClick={() => canSort && handleSort(index)}
                 >
                   <div className="flex items-center gap-1.5">
                     <span>{column.header || column.label}</span>
-                    {column.sortable !== false && sortConfig.key === (column.accessor || column.key) && (
-                      <span className="text-gray-500">
+                    {canSort && sortConfig.colIndex === index && (
+                      <span className="text-primary-600 dark:text-primary-400">
                         {sortConfig.direction === 'asc' ? (
                           <ArrowUp size={12} />
                         ) : (
@@ -641,32 +680,33 @@ const DataTable = ({
                     )}
                   </div>
                 </th>
-              ))}
+                );
+              })}
               {(onEdit || onDelete || onView || actions.length > 0) && (
-                <th className="px-4 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider text-center w-24">
+                <th className="px-4 py-3 text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider text-center w-24">
                   الإجراءات
                 </th>
               )}
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-100">
+          <tbody className="bg-white dark:bg-transparent divide-y divide-slate-100 dark:divide-slate-700/80">
             {paginatedData.length > 0 ? (
               paginatedData.map((row, rowIndex) => (
                 <tr
-                  key={rowIndex}
+                  key={resolveRowKey(row, startIndex + rowIndex)}
                   className={`transition-colors ${
-                    rowIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
+                    rowIndex % 2 === 0 ? 'bg-white dark:bg-slate-900/40' : 'bg-slate-50/60 dark:bg-slate-800/30'
                   } ${
-                    selectedRows.includes(rowIndex) ? 'bg-blue-50' : ''
+                    selectedRows.includes(rowIndex) ? 'bg-primary-50/50 dark:bg-primary-900/20' : ''
                   } ${
-                    onRowClick ? 'cursor-pointer hover:bg-gray-100' : ''
+                    onRowClick ? 'cursor-pointer hover:bg-slate-100/80 dark:hover:bg-slate-800/60' : ''
                   }`}
                   onClick={() => onRowClick && onRowClick(row)}
                 >
                   {columns.map((column, colIndex) => (
                     <td 
                       key={colIndex} 
-                      className={`px-4 py-3 text-sm text-gray-900 ${getColumnAlignment(column)} ${
+                      className={`px-4 py-3 text-sm text-slate-800 dark:text-slate-200 ${getColumnAlignment(column)} ${
                         column.nowrap !== false ? 'whitespace-nowrap' : ''
                       }`}
                     >
@@ -688,7 +728,11 @@ const DataTable = ({
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              onView(row);
+                              try {
+                                onView(row);
+                              } catch (err) {
+                                toast.error(getApiErrorMessage(err, 'تعذر فتح التفاصيل'));
+                              }
                             }}
                             className="p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
                             title="عرض"
@@ -700,7 +744,11 @@ const DataTable = ({
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              onEdit(row);
+                              try {
+                                onEdit(row);
+                              } catch (err) {
+                                toast.error(getApiErrorMessage(err, 'تعذر التعديل'));
+                              }
                             }}
                             className="p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
                             title="تعديل"
@@ -712,7 +760,11 @@ const DataTable = ({
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              onDelete(row);
+                              try {
+                                onDelete(row);
+                              } catch (err) {
+                                toast.error(getApiErrorMessage(err, 'تعذر الحذف'));
+                              }
                             }}
                             className="p-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                             title="حذف"
@@ -735,9 +787,17 @@ const DataTable = ({
                             return (
                               <button
                                 key={actionIndex}
+                                type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  action.onClick(row);
+                                  try {
+                                    const r = action.onClick(row);
+                                    if (r != null && typeof r.then === 'function') {
+                                      r.catch((err) => toast.error(getApiErrorMessage(err)));
+                                    }
+                                  } catch (err) {
+                                    toast.error(getApiErrorMessage(err));
+                                  }
                                 }}
                                 className={`p-1.5 rounded transition-colors ${className}`}
                                 title={label}
@@ -777,7 +837,7 @@ const DataTable = ({
 
       {/* Pagination */}
       {pagination && sortedData.length > 0 && (
-        <div className="px-5 py-3 border-t border-gray-200 bg-gray-50">
+        <div className="px-5 py-3 border-t border-slate-200/80 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/40">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="text-xs text-gray-600">

@@ -1,24 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useAuthStore } from '../store/authStore';
+import { settings } from '../api/admin';
 
-const STORAGE_KEY = 'sanad_admin_currency';
 const DEFAULT_CURRENCY = 'EGP';
-
-export const getStoredCurrency = () => {
-  try {
-    return localStorage.getItem(STORAGE_KEY) || DEFAULT_CURRENCY;
-  } catch {
-    return DEFAULT_CURRENCY;
-  }
-};
-
-export const setStoredCurrency = (currency) => {
-  try {
-    localStorage.setItem(STORAGE_KEY, currency || DEFAULT_CURRENCY);
-    window.dispatchEvent(new Event('sanad-currency-changed'));
-  } catch {
-    // Ignore storage issues and keep app usable.
-  }
-};
 
 export const formatMoney = (value, currency = DEFAULT_CURRENCY) => {
   const amount = Number(value || 0);
@@ -34,18 +19,22 @@ export const formatMoney = (value, currency = DEFAULT_CURRENCY) => {
   }
 };
 
+/**
+ * العملة من إعدادات السيرفر (قاعدة البيانات) — لا تُحفظ في localStorage
+ */
 export const useAppCurrency = () => {
-  const [currency, setCurrency] = useState(getStoredCurrency());
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
-  useEffect(() => {
-    const handleCurrencyChanged = () => setCurrency(getStoredCurrency());
-    window.addEventListener('sanad-currency-changed', handleCurrencyChanged);
-    window.addEventListener('storage', handleCurrencyChanged);
-    return () => {
-      window.removeEventListener('sanad-currency-changed', handleCurrencyChanged);
-      window.removeEventListener('storage', handleCurrencyChanged);
-    };
-  }, []);
+  const { data } = useQuery({
+    queryKey: ['admin-settings'],
+    queryFn: async () => (await settings.get()).data,
+    enabled: isAuthenticated,
+    staleTime: 60_000,
+  });
+
+  const raw = data?.data ?? data;
+  const payment = raw?.paymentSettings;
+  const currency = payment?.currency || DEFAULT_CURRENCY;
 
   const format = useMemo(
     () => (value) => formatMoney(value, currency),
@@ -54,4 +43,3 @@ export const useAppCurrency = () => {
 
   return { currency, formatMoney: format };
 };
-

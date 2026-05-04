@@ -3,6 +3,8 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Check, X, UserCheck, UserX, Mail, Calendar, Edit, Eye, Trash2, Users as UsersIcon, TrendingUp, FileText, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { getApiErrorMessage } from '../../utils/apiError';
+import { confirmDelete } from '../../utils/confirm';
 import { users } from '../../api/admin';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
@@ -30,9 +32,7 @@ const Users = () => {
       setEditingUser(null);
       refetch();
     },
-    onError: () => {
-      toast.error('فشل إضافة المستخدم');
-    },
+    onError: (e) => toast.error(getApiErrorMessage(e, 'فشل إضافة المستخدم')),
   });
 
   const updateMutation = useMutation({
@@ -43,9 +43,7 @@ const Users = () => {
       setEditingUser(null);
       refetch();
     },
-    onError: () => {
-      toast.error('فشل تحديث المستخدم');
-    },
+    onError: (e) => toast.error(getApiErrorMessage(e, 'فشل تحديث المستخدم')),
   });
 
   const deleteMutation = useMutation({
@@ -54,9 +52,7 @@ const Users = () => {
       toast.success('تم حذف المستخدم بنجاح');
       refetch();
     },
-    onError: () => {
-      toast.error('فشل حذف المستخدم');
-    },
+    onError: (e) => toast.error(getApiErrorMessage(e, 'فشل حذف المستخدم')),
   });
 
   const approveMutation = useMutation({
@@ -65,9 +61,7 @@ const Users = () => {
       toast.success('تم الموافقة على المستخدم');
       refetch();
     },
-    onError: () => {
-      toast.error('فشل الموافقة');
-    },
+    onError: (e) => toast.error(getApiErrorMessage(e, 'فشل الموافقة')),
   });
 
   const rejectMutation = useMutation({
@@ -76,9 +70,7 @@ const Users = () => {
       toast.success('تم رفض المستخدم');
       refetch();
     },
-    onError: () => {
-      toast.error('فشل الرفض');
-    },
+    onError: (e) => toast.error(getApiErrorMessage(e, 'فشل الرفض')),
   });
 
   const activateMutation = useMutation({
@@ -87,9 +79,7 @@ const Users = () => {
       toast.success('تم تفعيل المستخدم');
       refetch();
     },
-    onError: () => {
-      toast.error('فشل التفعيل');
-    },
+    onError: (e) => toast.error(getApiErrorMessage(e, 'فشل التفعيل')),
   });
 
   const deactivateMutation = useMutation({
@@ -98,9 +88,7 @@ const Users = () => {
       toast.success('تم تعطيل المستخدم');
       refetch();
     },
-    onError: () => {
-      toast.error('فشل التعطيل');
-    },
+    onError: (e) => toast.error(getApiErrorMessage(e, 'فشل التعطيل')),
   });
 
   const handleSubmit = async (e) => {
@@ -192,6 +180,7 @@ const Users = () => {
     {
       header: 'الحالة',
       accessor: 'status',
+      sortable: false,
       render: (row) => {
         let status, color;
         if (row.isActive && row.isApproved) {
@@ -292,8 +281,11 @@ const Users = () => {
     {
       label: 'حذف',
       icon: Trash2,
-      onClick: (row) => {
-        deleteMutation.mutate(row.id);
+      onClick: async (row) => {
+        const ok = await confirmDelete({
+          text: `حذف المستخدم «${row.username || row.id}»؟`,
+        });
+        if (ok) deleteMutation.mutate(row.id);
       },
       className: 'text-red-600 hover:bg-red-50',
       show: () => true,

@@ -141,6 +141,7 @@ const Payments = () => {
     {
       header: 'الحالة',
       accessor: 'status',
+      sortable: false,
       sortable: true,
       render: (row) => {
         const statusConfig = {
@@ -243,6 +244,7 @@ const Payments = () => {
     {
       header: 'الحالة',
       accessor: 'status',
+      sortable: false,
       sortable: true,
       render: (row) => {
         const statusConfig = {

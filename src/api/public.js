@@ -19,3 +19,8 @@ export const publicPages = {
     publicApiClient.get(`/public/pages/${pageType}`),
 };
 
+/** Admin login page: branding + dashboardTheme from database (no auth) */
+export const publicBranding = {
+  getAdminDashboard: () => publicApiClient.get('/public/admin-dashboard'),
+};
+

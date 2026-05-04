@@ -9,6 +9,8 @@
     --toast-border: #e5e7eb;
     --dash-surface: #f8fafc;
     --dash-elevated: rgba(255, 255, 255, 0.82);
+    /* افتراضي حتى يطبّق BrandingFontsSync من السيرفر */
+    --app-font-stack: Alexandria, Cairo, system-ui, sans-serif;
   }
 
   /* متغيرات الوضع الداكن فقط على <html class="dark"> — لا تُطبَّق بالخطأ في الوضع الفاتح */
@@ -365,9 +367,7 @@ html.dark .data-table-container thead th::after {
 [data-theme='light'] .glass-card .text-gray-400,
 [data-theme='light'] .glass-strong .text-gray-400 {
   color: #64748b !important;
-}
-
-[data-theme='light'] .glass-card .text-slate-900,
+}[data-theme='light'] .glass-card .text-slate-900,
 [data-theme='light'] .glass-card .text-slate-800,
 [data-theme='light'] .glass-card .text-slate-700,
 [data-theme='light'] .glass-strong .text-slate-900,
@@ -440,10 +440,29 @@ html.dark .input::placeholder,
 html.dark input::placeholder,
 html.dark textarea::placeholder {
   color: #cbd5e1 !important;
-}
-
-html.dark [class~='hover:text-gray-900']:hover,
+}html.dark [class~='hover:text-gray-900']:hover,
 html.dark [class~='hover:text-gray-700']:hover,
 html.dark [class~='hover:text-slate-900']:hover {
   color: #ffffff !important;
+}
+
+/* Admin: comfortable default surface (tables, cards) */
+.admin-datatable-surface {
+  @apply transition-shadow duration-200;
+}
+.admin-datatable-surface:hover {
+  box-shadow: 0 4px 6px -1px rgb(15 23 42 / 0.06), 0 2px 4px -2px rgb(15 23 42 / 0.05);
+}
+html.dark .admin-datatable-surface:hover {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.2);
+}
+
+/* SweetAlert2 RTL alignment when dir=rtl on html */
+.swal2-popup {
+  font-family: var(--app-font-stack, Alexandria, Cairo, sans-serif) !important;
+  direction: rtl;
+}
+.swal2-title,
+.swal2-html-container {
+  text-align: center !important;
 }

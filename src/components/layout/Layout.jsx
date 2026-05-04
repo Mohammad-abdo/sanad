@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom';
+import { Link, useLocation, Outlet, useNavigate, Navigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   LayoutDashboard, 
@@ -33,8 +33,10 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
-import { notifications } from '../../api/admin';
+import { notifications, settings } from '../../api/admin';
 import toast from 'react-hot-toast';
+import { AdminSettingsSync } from '../AdminSettingsSync';
+import { canAccessPath } from '../../config/adminRouteAccess';
 
 const Layout = ({ children = null }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -46,10 +48,23 @@ const Layout = ({ children = null }) => {
   const navigate = useNavigate();
   const { admin, logout } = useAuthStore();
   const theme = useThemeStore((s) => s.theme);
-  const toggleTheme = useThemeStore((s) => s.toggleTheme);
   const userDropdownRef = useRef(null);
   const notificationsRef = useRef(null);
   const queryClient = useQueryClient();
+
+  const updateDashboardThemeMutation = useMutation({
+    mutationFn: (dashboardTheme) => settings.update({ dashboardTheme }),
+    onSuccess: (_, dashboardTheme) => {
+      useThemeStore.getState().setTheme(dashboardTheme);
+      queryClient.invalidateQueries({ queryKey: ['admin-settings'] });
+    },
+    onError: () => toast.error('تعذر حفظ المظهر في السيرفر'),
+  });
+
+  const handleThemeToggle = () => {
+    const next = theme === 'light' ? 'dark' : 'light';
+    updateDashboardThemeMutation.mutate(next);
+  };
 
   // Fetch notifications
   const { data: notificationsData, refetch: refetchNotifications } = useQuery({
@@ -123,7 +138,7 @@ const Layout = ({ children = null }) => {
     clearAllMutation.mutate();
   };
 
-  const menuItems = [
+  const allMenuItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: 'لوحة التحكم' },
     { path: '/users', icon: Users, label: 'المستخدمين' },
     { path: '/doctors', icon: Stethoscope, label: 'الأطباء' },
@@ -142,9 +157,12 @@ const Layout = ({ children = null }) => {
     { path: '/onboarding', icon: Layers, label: 'التعريف (Onboarding)' },
     { path: '/notifications', icon: Bell, label: 'الإشعارات' },
     { path: '/content-moderation', icon: ShieldCheck, label: 'فلترة المحتوى' },
-    ...(admin?.role === 'SUPER_ADMIN' ? [{ path: '/admins', icon: Shield, label: 'إدارة الأدمن' }] : []),
+    { path: '/admins', icon: Shield, label: 'إدارة الأدمن' },
     { path: '/settings', icon: Settings, label: 'الإعدادات' },
   ];
+
+  const menuItems = allMenuItems.filter((item) => canAccessPath(item.path, admin?.role));
+  const canChangeSettings = canAccessPath('/settings', admin?.role);
 
   const isActive = (path) => location.pathname === path;
 
@@ -190,12 +208,17 @@ const Layout = ({ children = null }) => {
         : 'text-slate-600 hover:bg-slate-100/90 dark:text-slate-300 dark:hover:bg-slate-800/70'
     }`;
 
+  if (admin?.role && !canAccessPath(location.pathname, admin.role)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <div
       className={`relative flex h-screen overflow-hidden ${
         theme === 'dark' ? 'bg-slate-950' : 'bg-[#f8fafc]'
       }`}
     >
+      <AdminSettingsSync />
 
       {/* Sidebar — مكتب: لوحة عائمة حديثة */}
       <aside
@@ -367,7 +390,11 @@ const Layout = ({ children = null }) => {
               </button>
               <div className="min-w-0">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                {menuItems.find((item) => item.path === location.pathname)?.label || 'لوحة التحكم'}
+                {menuItems.find(
+                  (item) =>
+                    location.pathname === item.path ||
+                    (item.path !== '/dashboard' && location.pathname.startsWith(`${item.path}/`))
+                )?.label || 'لوحة التحكم'}
               </h2>
               <p className="mt-1 text-xs sm:text-sm text-gray-600 dark:text-slate-400 truncate">
                 {new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
@@ -385,16 +412,19 @@ const Layout = ({ children = null }) => {
                 />
               </div>
 
-              {/* Light / Dark */}
-              <button
-                type="button"
-                onClick={() => toggleTheme()}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white/90 text-amber-600 shadow-sm transition-all hover:border-primary-300 hover:text-primary-600 dark:border-slate-600 dark:bg-slate-800/90 dark:text-amber-300 dark:hover:border-primary-500/50 dark:hover:text-primary-300"
-                title={theme === 'dark' ? 'الوضع الفاتح' : 'الوضع الداكن'}
-                aria-label={theme === 'dark' ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع الداكن'}
-              >
-                {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-              </button>
+              {/* Light / Dark — حفظ المظهر عبر PUT /settings (صلاحية سوبر أدمن/أدمن) */}
+              {canChangeSettings && (
+                <button
+                  type="button"
+                  onClick={handleThemeToggle}
+                  disabled={updateDashboardThemeMutation.isPending}
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white/90 text-amber-600 shadow-sm transition-all hover:border-primary-300 hover:text-primary-600 enabled:cursor-pointer disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800/90 dark:text-amber-300 dark:hover:border-primary-500/50 dark:hover:text-primary-300"
+                  title={theme === 'dark' ? 'الوضع الفاتح' : 'الوضع الداكن'}
+                  aria-label={theme === 'dark' ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع الداكن'}
+                >
+                  {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+                </button>
+              )}
 
               {/* Notifications */}
               <div className="relative z-[100] overflow-visible" ref={notificationsRef}>
@@ -564,9 +594,11 @@ const Layout = ({ children = null }) => {
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-3 sm:p-6 relative z-0">
-          <div className="relative w-full">{children || <Outlet />}</div>
+        {/* Page Content — max width for readability; horizontal scroll for wide tables inside */}
+        <main className="relative z-0 min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-gradient-to-b from-slate-100/80 via-transparent to-transparent p-3 sm:p-5 lg:px-10 lg:py-8 dark:from-slate-950/60">
+          <div className="relative mx-auto w-full min-h-[50vh] max-w-[min(100%,1600px)]">
+            {children || <Outlet />}
+          </div>
         </main>
       </div>
     </div>

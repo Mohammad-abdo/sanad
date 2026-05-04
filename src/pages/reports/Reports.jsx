@@ -87,6 +87,7 @@ const Reports = () => {
     {
       header: 'الحالة',
       accessor: 'status',
+      sortable: false,
       render: (row) => {
         const statusConfig = {
           COMPLETED: { label: 'مكتمل', color: 'bg-green-100 text-green-700 border-green-200' },

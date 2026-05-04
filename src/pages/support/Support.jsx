@@ -135,6 +135,7 @@ const Support = () => {
     {
       header: 'الحالة',
       accessor: 'status',
+      sortable: false,
       sortable: true,
       render: (row) => {
         const statusConfig = {

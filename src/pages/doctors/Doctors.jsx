@@ -1,14 +1,18 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
+import { useAuthStore } from '../../store/authStore';
 import { doctors } from '../../api/admin';
 import { Plus, Check, X, Shield, ShieldOff, Mail, Calendar, Star, Edit, Eye, Stethoscope, UserCheck, UserX, Trash2, TrendingUp, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { getApiErrorMessage } from '../../utils/apiError';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 
 const Doctors = () => {
   const navigate = useNavigate();
+  const { admin } = useAuthStore();
+  const canDeleteDoctor = admin?.role === 'SUPER_ADMIN' || admin?.role === 'ADMIN';
   const [page, setPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [editingDoctor, setEditingDoctor] = useState(null);
@@ -30,8 +34,8 @@ const Doctors = () => {
       setEditingDoctor(null);
       refetch();
     },
-    onError: () => {
-      toast.error('فشل إضافة الطبيب');
+    onError: (e) => {
+      toast.error(getApiErrorMessage(e, 'فشل إضافة الطبيب'));
     },
   });
 
@@ -43,8 +47,8 @@ const Doctors = () => {
       setEditingDoctor(null);
       refetch();
     },
-    onError: () => {
-      toast.error('فشل تحديث الطبيب');
+    onError: (e) => {
+      toast.error(getApiErrorMessage(e, 'فشل تحديث الطبيب'));
     },
   });
 
@@ -54,8 +58,8 @@ const Doctors = () => {
       toast.success('تم الموافقة على الطبيب');
       refetch();
     },
-    onError: () => {
-      toast.error('فشل الموافقة');
+    onError: (e) => {
+      toast.error(getApiErrorMessage(e, 'فشل الموافقة'));
     },
   });
 
@@ -65,8 +69,8 @@ const Doctors = () => {
       toast.success('تم رفض الطبيب');
       refetch();
     },
-    onError: () => {
-      toast.error('فشل الرفض');
+    onError: (e) => {
+      toast.error(getApiErrorMessage(e, 'فشل الرفض'));
     },
   });
 
@@ -76,8 +80,8 @@ const Doctors = () => {
       toast.success('تم توثيق الطبيب');
       refetch();
     },
-    onError: () => {
-      toast.error('فشل التوثيق');
+    onError: (e) => {
+      toast.error(getApiErrorMessage(e, 'فشل التوثيق'));
     },
   });
 
@@ -87,8 +91,8 @@ const Doctors = () => {
       toast.success('تم إلغاء توثيق الطبيب');
       refetch();
     },
-    onError: () => {
-      toast.error('فشل إلغاء التوثيق');
+    onError: (e) => {
+      toast.error(getApiErrorMessage(e, 'فشل إلغاء التوثيق'));
     },
   });
 
@@ -98,8 +102,8 @@ const Doctors = () => {
       toast.success('تم تفعيل الطبيب');
       refetch();
     },
-    onError: () => {
-      toast.error('فشل التفعيل');
+    onError: (e) => {
+      toast.error(getApiErrorMessage(e, 'فشل التفعيل'));
     },
   });
 
@@ -109,8 +113,8 @@ const Doctors = () => {
       toast.success('تم تعطيل الطبيب');
       refetch();
     },
-    onError: () => {
-      toast.error('فشل التعطيل');
+    onError: (e) => {
+      toast.error(getApiErrorMessage(e, 'فشل التعطيل'));
     },
   });
 
@@ -120,8 +124,8 @@ const Doctors = () => {
       toast.success('تم حذف الطبيب');
       refetch();
     },
-    onError: () => {
-      toast.error('فشل حذف الطبيب');
+    onError: (e) => {
+      toast.error(getApiErrorMessage(e, 'فشل حذف الطبيب'));
     },
   });
 
@@ -220,6 +224,7 @@ const Doctors = () => {
     {
       header: 'الحالة',
       accessor: 'status',
+      sortable: false,
       render: (row) => (
         <div className="flex flex-col gap-1.5">
           <span className={`px-3 py-1.5 rounded-lg text-sm font-semibold border inline-block w-fit ${
@@ -342,7 +347,7 @@ const Doctors = () => {
         deleteMutation.mutate(row.id);
       },
       className: 'text-red-600 hover:bg-red-50',
-      show: () => true,
+      show: () => canDeleteDoctor,
     },
   ];
 

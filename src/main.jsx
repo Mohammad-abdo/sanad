@@ -8,8 +8,9 @@ import { ThemeSync } from './components/ThemeSync';
 import { BrandingFontsSync } from './components/BrandingFontsSync';
 import { syncHtmlThemeFromStorage } from './utils/themeHtml';
 import './index.css';
+import 'sweetalert2/dist/sweetalert2.min.css';
 
-// مزامنة <html> قبل React — دائماً نزيل dark إلا إذا كان المخزن = dark
+// مزامنة <html> قبل React — وضع فاتح مبدئي حتى تُحمّل إعدادات المظهر من السيرفر
 syncHtmlThemeFromStorage();
 
 const queryClient = new QueryClient({
@@ -25,13 +26,14 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <ThemeSync>
-        <BrowserRouter
-          future={{
-            v7_startTransition: true,
-            v7_relativeSplatPath: true,
-          }}
-        >
-          <App />
+        <BrandingFontsSync>
+          <BrowserRouter
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true,
+            }}
+          >
+            <App />
           <Toaster
             position="top-left"
             reverseOrder={false}
@@ -75,7 +77,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               },
             }}
           />
-        </BrowserRouter>
+          </BrowserRouter>
+        </BrandingFontsSync>
       </ThemeSync>
     </QueryClientProvider>
   </React.StrictMode>,

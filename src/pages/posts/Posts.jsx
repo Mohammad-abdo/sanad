@@ -152,6 +152,7 @@ const Posts = () => {
     {
       header: 'الحالة',
       accessor: 'status',
+      sortable: false,
       render: (row) => (
         <div className="flex flex-col gap-1.5">
           <span className={`px-3 py-1.5 rounded-lg text-sm font-semibold border inline-block w-fit ${

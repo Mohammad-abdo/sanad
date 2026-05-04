@@ -177,6 +177,7 @@ const UserDetails = () => {
     {
       header: 'الحالة',
       accessor: 'status',
+      sortable: false,
       render: (booking) => {
         const statusConfig = {
           COMPLETED: { label: 'مكتملة', color: 'bg-green-100 text-green-700 border-green-200' },
@@ -246,6 +247,7 @@ const UserDetails = () => {
     {
       header: 'الحالة',
       accessor: 'status',
+      sortable: false,
       render: (post) => {
         const statusConfig = {
           PUBLISHED: { label: 'منشور', color: 'bg-green-100 text-green-700 border-green-200' },

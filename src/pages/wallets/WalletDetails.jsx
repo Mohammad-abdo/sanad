@@ -181,6 +181,7 @@ const WalletDetails = () => {
     {
       header: 'الحالة',
       accessor: 'status',
+      sortable: false,
       render: (row) => getStatusBadge(row),
     },
     {

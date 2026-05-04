@@ -110,6 +110,7 @@ const Tips = () => {
     {
       header: 'الحالة',
       accessor: 'status',
+      sortable: false,
       render: (row) => (
         <div className="flex flex-col gap-1.5">
           {row.isVerified && (

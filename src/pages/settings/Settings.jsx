@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { setStoredCurrency } from '../../utils/currency';
+import { useThemeStore } from '../../store/themeStore';
 import {
   ADMIN_FONT_OPTIONS,
   DEFAULT_PRIMARY_FONT,
@@ -43,6 +43,7 @@ const PAYMENT_METHOD_OPTIONS = [
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('branding');
   const queryClient = useQueryClient();
+  const setTheme = useThemeStore((s) => s.setTheme);
   
   // Form state for branding
   const [brandingForm, setBrandingForm] = useState({
@@ -50,7 +51,7 @@ const Settings = () => {
     appNameEn: '',
     primaryFont: 'Cairo',
     secondaryFont: 'Tajawal',
-    primaryColor: '#14b8a6',
+    primaryColor: '#845BD7',
     secondaryColor: '#64748b',
     logo: '',
     logoMobile: '',
@@ -114,7 +115,7 @@ const Settings = () => {
         appNameEn: rawSettings.appNameEn || 'Sanad',
         primaryFont: rawSettings.primaryFont || DEFAULT_PRIMARY_FONT,
         secondaryFont: rawSettings.secondaryFont || DEFAULT_SECONDARY_FONT,
-        primaryColor: rawSettings.primaryColor || '#14b8a6',
+        primaryColor: rawSettings.primaryColor || '#845BD7',
         secondaryColor: rawSettings.secondaryColor || '#64748b',
         logo: rawSettings.logo || '',
         logoMobile: rawSettings.logoMobile || '',
@@ -139,9 +140,11 @@ const Settings = () => {
           ? paymentSettings.enabledPaymentMethods
           : ['BANK_ACCOUNT', 'E_WALLET', 'VODAFONE_CASH', 'INSTAPAY'],
       });
-      setStoredCurrency(paymentSettings.currency || 'EGP');
+      if (rawSettings.dashboardTheme === 'dark' || rawSettings.dashboardTheme === 'light') {
+        setTheme(rawSettings.dashboardTheme);
+      }
     }
-  }, [settingsData]);
+  }, [settingsData, setTheme]);
 
   // معاينة مباشرة للخطوط أثناء تعديل العلامة
   useEffect(() => {
@@ -295,7 +298,6 @@ const Settings = () => {
 
   const handlePaymentSubmit = (e) => {
     e.preventDefault();
-    setStoredCurrency(paymentForm.currency || 'EGP');
     updateSettingsMutation.mutate({
       paymentSettings: {
         systemCommissionRate: Number(paymentForm.systemCommissionRate || 0),
@@ -542,7 +544,7 @@ const Settings = () => {
                         value={brandingForm.primaryColor}
                         onChange={(e) => handleBrandingChange('primaryColor', e.target.value)}
                         className="input flex-1"
-                        placeholder="#14b8a6"
+                        placeholder="#845BD7"
                       />
                     </div>
                   </div>

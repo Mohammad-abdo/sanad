@@ -79,6 +79,8 @@ export const doctors = {
   
   deactivate: (id, reason) => 
     apiClient.put(`/admin/doctors/${id}/deactivate`, { reason }),
+
+  delete: (id) => apiClient.delete(`/admin/doctors/${id}`),
 };
 
 // Posts
