@@ -62,6 +62,11 @@ const ReportDetails = () => {
     },
   });
 
+  const filtersKeys = useMemo(() => {
+    if (!report?.filters || typeof report.filters !== 'object') return [];
+    return Object.keys(report.filters);
+  }, [report?.filters]);
+
   const handleDelete = () => {
     setConfirmDeleteOpen(true);
   };
@@ -144,11 +149,6 @@ const ReportDetails = () => {
 
   const statusConfig = getStatusConfig(report.status);
   const StatusIcon = statusConfig.icon;
-
-  const filtersKeys = useMemo(() => {
-    if (!report?.filters || typeof report.filters !== 'object') return [];
-    return Object.keys(report.filters);
-  }, [report?.filters]);
 
   const formatDate = (value) => {
     if (!value) return '-';
