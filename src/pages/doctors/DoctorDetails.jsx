@@ -74,7 +74,7 @@ const DoctorDetails = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl">
+        <div className="surface-card p-8 rounded-2xl">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
           <div className="text-gray-700 font-medium">جاري التحميل...</div>
         </div>
@@ -85,7 +85,7 @@ const DoctorDetails = () => {
   if (error || !doctor) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl text-center">
+        <div className="surface-card p-8 rounded-2xl text-center">
           <AlertCircle className="mx-auto text-red-500 mb-4" size={48} />
           <h3 className="text-xl font-bold text-gray-900 mb-2">الطبيب غير موجود</h3>
           <p className="text-gray-600 mb-4">لم يتم العثور على بيانات الطبيب</p>
@@ -113,7 +113,7 @@ const DoctorDetails = () => {
   const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
 
   return (
-    <div className="space-y-6">
+    <div className="page-shell">
       {/* Header */}
       <div className="flex items-center justify-between">
         <button
@@ -158,7 +158,7 @@ const DoctorDetails = () => {
       </div>
 
       {/* Doctor Header Card */}
-      <div className="glass-card rounded-2xl p-8 bg-white border border-primary-200">
+      <div className="surface-card rounded-2xl p-8 bg-white border border-primary-200">
         <div className="flex items-start gap-6">
           <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-2xl">
             <span className="text-white text-5xl font-bold">
@@ -220,7 +220,7 @@ const DoctorDetails = () => {
 
       {/* Contact Information */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
+        <div className="surface-card rounded-xl p-6 border border-gray-200">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-12 h-12 rounded-lg bg-primary-50 border border-primary-200 flex items-center justify-center">
               <Mail className="text-primary-600" size={24} />
@@ -231,7 +231,7 @@ const DoctorDetails = () => {
             </div>
           </div>
         </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
+        <div className="surface-card rounded-xl p-6 border border-gray-200">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-12 h-12 rounded-lg bg-primary-50 border border-primary-200 flex items-center justify-center">
               <Phone className="text-primary-600" size={24} />
@@ -246,7 +246,7 @@ const DoctorDetails = () => {
 
       {/* Specialties */}
       {doctor.specialties && doctor.specialties.length > 0 && (
-        <div className="glass-card rounded-2xl p-6 border border-gray-200">
+        <div className="surface-card rounded-2xl p-6 border border-gray-200">
           <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
             <Award size={24} className="text-primary-600" />
             التخصصات
@@ -266,7 +266,7 @@ const DoctorDetails = () => {
 
       {/* Session Prices */}
       {doctor.sessionPrices && doctor.sessionPrices.length > 0 && (
-        <div className="glass-card rounded-2xl p-6 border border-gray-200">
+        <div className="surface-card rounded-2xl p-6 border border-gray-200">
           <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
             <DollarSign size={24} className="text-primary-600" />
             أسعار الجلسات
@@ -289,7 +289,7 @@ const DoctorDetails = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Experience */}
         {doctor.experiences && doctor.experiences.length > 0 && (
-          <div className="glass-card rounded-2xl p-6 border border-gray-200">
+          <div className="surface-card rounded-2xl p-6 border border-gray-200">
             <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
               <Briefcase size={24} className="text-primary-600" />
               الخبرات
@@ -311,7 +311,7 @@ const DoctorDetails = () => {
 
         {/* Education */}
         {doctor.education && doctor.education.length > 0 && (
-          <div className="glass-card rounded-2xl p-6 border border-gray-200">
+          <div className="surface-card rounded-2xl p-6 border border-gray-200">
             <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
               <GraduationCap size={24} className="text-primary-600" />
               التعليم
@@ -334,7 +334,7 @@ const DoctorDetails = () => {
 
       {/* Certificates */}
       {doctor.certificates && doctor.certificates.length > 0 && (
-        <div className="glass-card rounded-2xl p-6 border border-gray-200">
+        <div className="surface-card rounded-2xl p-6 border border-gray-200">
           <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
             <Award size={24} className="text-primary-600" />
             الشهادات
@@ -367,7 +367,7 @@ const DoctorDetails = () => {
 
       {/* Availability */}
       {doctor.availability && doctor.availability.length > 0 && (
-        <div className="glass-card rounded-2xl p-6 border border-gray-200">
+        <div className="surface-card rounded-2xl p-6 border border-gray-200">
           <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
             <Clock size={24} className="text-primary-600" />
             أوقات التوفر
@@ -413,7 +413,7 @@ const DoctorDetails = () => {
       )}
 
       {/* Wallet Information */}
-      <div className="glass-card rounded-2xl p-6 bg-white border border-gray-200">
+      <div className="surface-card rounded-2xl p-6 bg-white border border-gray-200">
         <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
           <Wallet size={24} className="text-primary-600" />
           معلومات المحفظة
@@ -451,7 +451,7 @@ const DoctorDetails = () => {
 
       {/* Bookings Per Day */}
       {doctor.bookingsByDay && Object.keys(doctor.bookingsByDay).length > 0 && (
-        <div className="glass-card rounded-2xl p-6 border border-gray-200">
+        <div className="surface-card rounded-2xl p-6 border border-gray-200">
           <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
             <Calendar size={24} className="text-primary-600" />
             الحجوزات حسب اليوم
@@ -522,7 +522,7 @@ const DoctorDetails = () => {
 
       {/* Payments/Enrollments */}
       {doctor.payments && doctor.payments.length > 0 && (
-        <div className="glass-card rounded-2xl p-6 border border-gray-200">
+        <div className="surface-card rounded-2xl p-6 border border-gray-200">
           <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
             <DollarSign size={24} className="text-primary-600" />
             المدفوعات والاشتراكات ({doctor.payments.length})
@@ -596,7 +596,7 @@ const DoctorDetails = () => {
 
       {/* Withdrawals */}
       {doctor.withdrawals && doctor.withdrawals.length > 0 && (
-        <div className="glass-card rounded-2xl p-6 border border-gray-200">
+        <div className="surface-card rounded-2xl p-6 border border-gray-200">
           <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
             <Wallet size={24} className="text-primary-600" />
             طلبات السحب ({doctor.withdrawals.length})
@@ -656,28 +656,28 @@ const DoctorDetails = () => {
 
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className="w-16 h-16 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center mx-auto mb-3">
             <Calendar className="text-blue-600" size={28} />
           </div>
           <p className="text-3xl font-bold text-gray-900 mb-1">{doctor._count?.bookings || 0}</p>
           <p className="text-sm text-gray-500">إجمالي الحجوزات</p>
         </div>
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className="w-16 h-16 rounded-xl bg-green-50 border border-green-200 flex items-center justify-center mx-auto mb-3">
             <FileText className="text-green-600" size={28} />
           </div>
           <p className="text-3xl font-bold text-gray-900 mb-1">{doctor._count?.tips || 0}</p>
           <p className="text-sm text-gray-500">النصائح</p>
         </div>
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className="w-16 h-16 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center mx-auto mb-3">
             <FileText className="text-purple-600" size={28} />
           </div>
           <p className="text-3xl font-bold text-gray-900 mb-1">{doctor._count?.articles || 0}</p>
           <p className="text-sm text-gray-500">المقالات</p>
         </div>
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className="w-16 h-16 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto mb-3">
             <Star className="text-amber-600 fill-amber-600" size={28} />
           </div>

@@ -5,6 +5,7 @@ import { Eye, DollarSign, Wallet, Lock, Unlock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import DataTable from '../../components/common/DataTable';
 import { wallets } from '../../api/admin';
+import { PageHeader, StatCard, PageLoading, PageError } from '../../components/ui';
 import { useAppCurrency } from '../../utils/currency';
 
 const Wallets = () => {
@@ -14,7 +15,7 @@ const Wallets = () => {
   const [page] = useState(1);
   const limit = 20;
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['wallets', page],
     queryFn: async () => {
       const response = await wallets.getActiveDoctorWallets({ page, limit });
@@ -34,6 +35,9 @@ const Wallets = () => {
       toast.error(err?.response?.data?.error?.message || 'فشل تحديث حالة المحفظة');
     },
   });
+
+  if (isLoading) return <PageLoading />;
+  if (error) return <PageError detail={error?.message} onRetry={() => refetch()} />;
 
   const walletsList = data?.wallets || [];
 
@@ -151,40 +155,16 @@ const Wallets = () => {
   }));
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">محافظ الأطباء</h1>
-          <p className="text-sm text-gray-600">
-            إدارة رصيد الطبيب، إيقاف/تفعيل المحفظة (يمنع طلبات السحب الجديدة من تطبيق الطبيب)، ومعالجة السحوبات من صفحة التفاصيل
-          </p>
-        </div>
-      </div>
+    <div className="page-shell">
+      <PageHeader
+        title="محافظ الأطباء"
+        description="إدارة رصيد الطبيب، إيقاف/تفعيل المحفظة (يمنع طلبات السحب الجديدة من تطبيق الطبيب)، ومعالجة السحوبات من صفحة التفاصيل"
+      />
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
-          <div className="w-16 h-16 rounded-xl bg-green-50 border border-green-200 flex items-center justify-center mx-auto mb-3">
-            <DollarSign className="text-green-600" size={32} />
-          </div>
-          <p className="text-3xl font-bold text-gray-900 mb-1">{formatMoney(totalBalance)}</p>
-          <p className="text-sm text-gray-500">إجمالي الرصيد</p>
-        </div>
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
-          <div className="w-16 h-16 rounded-xl bg-primary-50 border border-primary-200 flex items-center justify-center mx-auto mb-3">
-            <Wallet className="text-primary-600" size={32} />
-          </div>
-          <p className="text-3xl font-bold text-gray-900 mb-1">{totalDoctors}</p>
-          <p className="text-sm text-gray-500">أطباء نشطين</p>
-        </div>
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
-          <div className="w-16 h-16 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center mx-auto mb-3">
-            <Eye className="text-blue-600" size={32} />
-          </div>
-          <p className="text-3xl font-bold text-gray-900 mb-1">{tableData.length}</p>
-          <p className="text-sm text-gray-500">سجلات في الصفحة</p>
-        </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <StatCard title="إجمالي الرصيد" value={formatMoney(totalBalance)} icon={DollarSign} tone="emerald" />
+        <StatCard title="أطباء نشطين" value={totalDoctors} icon={Wallet} tone="violet" />
+        <StatCard title="سجلات في الصفحة" value={tableData.length} icon={Eye} tone="sky" />
       </div>
 
       {/* Data Table */}

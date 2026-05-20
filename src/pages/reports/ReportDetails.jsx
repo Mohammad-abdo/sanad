@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { reports } from '../../api/admin';
+import { downloadReportFile } from '../../utils/downloadReport';
 import Modal from '../../components/common/Modal';
 import { 
   ArrowRight, 
@@ -41,19 +42,12 @@ const ReportDetails = () => {
   });
 
   const downloadMutation = useMutation({
-    mutationFn: () => reports.download(id),
-    onSuccess: (response) => {
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `report-${report.name}-${new Date().toISOString().split('T')[0]}.${report.format?.toLowerCase() || 'pdf'}`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+    mutationFn: () => downloadReportFile(report),
+    onSuccess: () => {
       toast.success('تم تحميل التقرير بنجاح');
     },
-    onError: () => {
-      toast.error('فشل تحميل التقرير');
+    onError: (error) => {
+      toast.error(error.message || 'فشل تحميل التقرير');
     },
   });
 
@@ -75,7 +69,7 @@ const ReportDetails = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl">
+        <div className="surface-card p-8 rounded-2xl">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
           <div className="text-gray-700 font-medium">جاري التحميل...</div>
         </div>
@@ -86,7 +80,7 @@ const ReportDetails = () => {
   if (error || !report) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl text-center">
+        <div className="surface-card p-8 rounded-2xl text-center">
           <AlertCircle className="mx-auto text-red-500 mb-4" size={48} />
           <h3 className="text-xl font-bold text-gray-900 mb-2">التقرير غير موجود</h3>
           <p className="text-gray-600 mb-4">لم يتم العثور على بيانات التقرير</p>
@@ -195,7 +189,7 @@ const ReportDetails = () => {
   const hasFailed = report?.status === 'FAILED';
 
   return (
-    <div className="space-y-6">
+    <div className="page-shell">
       {/* Header */}
       <div className="flex items-center justify-between">
         <button
@@ -237,7 +231,7 @@ const ReportDetails = () => {
       </div>
 
       {/* Report Header Card */}
-      <div className="glass-card rounded-2xl p-8 bg-white border border-primary-200">
+      <div className="surface-card rounded-2xl p-8 bg-white border border-primary-200">
         <div className="flex items-start gap-6">
           <div className={`w-20 h-20 rounded-2xl ${statusConfig.bgColor} border-2 ${statusConfig.borderColor} flex items-center justify-center shadow-lg`}>
             <StatusIcon className={`${statusConfig.color} ${statusConfig.animate ? 'animate-spin' : ''}`} size={40} />
@@ -280,7 +274,7 @@ const ReportDetails = () => {
       </div>
 
       {/* Tabs */}
-      <div className="glass-card rounded-2xl p-4 bg-white border border-gray-200">
+      <div className="surface-card rounded-2xl p-4 bg-white border border-gray-200">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex gap-2 flex-wrap">
             {[
@@ -315,7 +309,7 @@ const ReportDetails = () => {
       {/* Tab Content */}
       {activeTab === 'overview' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="glass-card rounded-xl p-6 border border-gray-200">
+          <div className="surface-card rounded-xl p-6 border border-gray-200">
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
               <FileBarChart className="text-primary-600" size={20} />
               بيانات التقرير
@@ -348,7 +342,7 @@ const ReportDetails = () => {
             </div>
           </div>
 
-          <div className="glass-card rounded-xl p-6 border border-gray-200">
+          <div className="surface-card rounded-xl p-6 border border-gray-200">
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
               <User className="text-primary-600" size={20} />
               المُنشئ (Admin)
@@ -376,7 +370,7 @@ const ReportDetails = () => {
 
       {activeTab === 'timeline' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="glass-card rounded-xl p-6 border border-gray-200">
+          <div className="surface-card rounded-xl p-6 border border-gray-200">
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
               <Calendar className="text-primary-600" size={20} />
               معلومات الزمن
@@ -409,7 +403,7 @@ const ReportDetails = () => {
             </div>
           </div>
 
-          <div className={`glass-card rounded-xl p-6 border ${
+          <div className={`surface-card rounded-xl p-6 border ${
             report.status === 'FAILED'
               ? 'border-red-200 bg-red-50'
               : report.status === 'PROCESSING'
@@ -455,7 +449,7 @@ const ReportDetails = () => {
       )}
 
       {activeTab === 'filters' && (
-        <div className="glass-card rounded-2xl p-6 border border-gray-200">
+        <div className="surface-card rounded-2xl p-6 border border-gray-200">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
               <h3 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
@@ -485,7 +479,7 @@ const ReportDetails = () => {
 
       {activeTab === 'output' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="glass-card rounded-xl p-6 border border-gray-200">
+          <div className="surface-card rounded-xl p-6 border border-gray-200">
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
               <FileText className="text-primary-600" size={20} />
               معلومات الملف
@@ -550,7 +544,7 @@ const ReportDetails = () => {
             </div>
           </div>
 
-          <div className="glass-card rounded-xl p-6 border border-gray-200">
+          <div className="surface-card rounded-xl p-6 border border-gray-200">
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
               <AlertCircle className="text-primary-600" size={20} />
               الأخطاء
@@ -583,7 +577,7 @@ const ReportDetails = () => {
       )}
 
       {activeTab === 'raw' && (
-        <div className="glass-card rounded-2xl p-6 border border-gray-200">
+        <div className="surface-card rounded-2xl p-6 border border-gray-200">
           <h3 className="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">
             <FileText className="text-primary-600" size={20} />
             كل بيانات التقرير (Raw JSON)

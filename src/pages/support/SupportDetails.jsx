@@ -71,7 +71,7 @@ const SupportDetails = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl">
+        <div className="surface-card p-8 rounded-2xl">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
           <div className="text-gray-700 font-medium">جاري التحميل...</div>
         </div>
@@ -82,7 +82,7 @@ const SupportDetails = () => {
   if (error || !ticket) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl text-center">
+        <div className="surface-card p-8 rounded-2xl text-center">
           <AlertCircle className="mx-auto text-red-500 mb-4" size={48} />
           <h3 className="text-xl font-bold text-gray-900 mb-2">التذكرة غير موجودة</h3>
           <p className="text-gray-600 mb-4">لم يتم العثور على بيانات التذكرة</p>
@@ -146,7 +146,7 @@ const SupportDetails = () => {
   const senderEmail = ticket.user ? ticket.user.email : (ticket.doctor ? ticket.doctor.email : '-');
 
   return (
-    <div className="space-y-6">
+    <div className="page-shell">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -164,28 +164,28 @@ const SupportDetails = () => {
 
       {/* Main Info Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className={`w-16 h-16 rounded-xl ${statusConfig.bgColor} flex items-center justify-center mx-auto mb-3`}>
             <StatusIcon className={statusConfig.color.split(' ')[1]} size={32} />
           </div>
           <p className="text-2xl font-bold text-gray-900 mb-1">{statusConfig.label}</p>
           <p className="text-sm text-gray-500">الحالة</p>
         </div>
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className="w-16 h-16 rounded-xl bg-primary-50 border border-primary-200 flex items-center justify-center mx-auto mb-3">
             <Headphones className="text-primary-600" size={28} />
           </div>
           <p className="text-lg font-bold text-gray-900 mb-1 truncate">{ticket.subject}</p>
           <p className="text-sm text-gray-500">الموضوع</p>
         </div>
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className={`w-16 h-16 rounded-xl ${priorityConfig.color.replace('text-', 'bg-').replace('-700', '-50')} border ${priorityConfig.color.replace('text-', 'border-').replace('-700', '-200')} flex items-center justify-center mx-auto mb-3`}>
             <AlertCircle className={priorityConfig.color.split(' ')[1]} size={28} />
           </div>
           <p className="text-2xl font-bold text-gray-900 mb-1">{priorityConfig.label}</p>
           <p className="text-sm text-gray-500">الأولوية</p>
         </div>
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className="w-16 h-16 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center mx-auto mb-3">
             <Calendar className="text-blue-600" size={28} />
           </div>
@@ -201,7 +201,7 @@ const SupportDetails = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Sender Information */}
-        <div className="glass-card rounded-2xl p-6 border border-gray-200">
+        <div className="surface-card rounded-2xl p-6 border border-gray-200">
           <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
             {ticket.user ? (
               <User size={24} className="text-primary-600" />
@@ -258,7 +258,7 @@ const SupportDetails = () => {
         </div>
 
         {/* Ticket Information */}
-        <div className="glass-card rounded-2xl p-6 border border-gray-200">
+        <div className="surface-card rounded-2xl p-6 border border-gray-200">
           <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
             <FileText size={24} className="text-primary-600" />
             معلومات التذكرة
@@ -323,7 +323,7 @@ const SupportDetails = () => {
       </div>
 
       {/* Message Section */}
-      <div className="glass-card rounded-2xl p-6 border border-gray-200">
+      <div className="surface-card rounded-2xl p-6 border border-gray-200">
         <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
           <MessageSquare size={24} className="text-primary-600" />
           الرسالة
@@ -336,7 +336,7 @@ const SupportDetails = () => {
       </div>
 
       {/* Replies Section */}
-      <div className="glass-card rounded-2xl p-6 border border-gray-200">
+      <div className="surface-card rounded-2xl p-6 border border-gray-200">
         <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
           <MessageSquare size={24} className="text-primary-600" />
           الردود ({ticket.replies?.length || 0})
@@ -416,7 +416,7 @@ const SupportDetails = () => {
       </div>
 
       {/* Reply Form */}
-      <div className="glass-card rounded-2xl p-6 border border-gray-200">
+      <div className="surface-card rounded-2xl p-6 border border-gray-200">
         <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
           <Send size={24} className="text-primary-600" />
           إضافة رد

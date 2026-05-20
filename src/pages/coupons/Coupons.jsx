@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { coupons } from '../../api/admin';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
+import { PageHeader, StatCard, Button, PageLoading, PageError } from '../../components/ui';
 import { useAppCurrency } from '../../utils/currency';
 
 const Coupons = () => {
@@ -16,7 +17,7 @@ const Coupons = () => {
   const [page, setPage] = useState(1);
   const limit = 20;
 
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['admin-coupons', page],
     queryFn: async () => {
       const response = await coupons.getAll({ page, limit });
@@ -82,6 +83,9 @@ const Coupons = () => {
       toast.error('فشل إلغاء تفعيل الكوبون');
     },
   });
+
+  if (isLoading) return <PageLoading />;
+  if (error) return <PageError detail={error?.message} onRetry={() => refetch()} />;
 
   const couponsList = data?.data?.coupons || [];
 
@@ -283,71 +287,28 @@ const Coupons = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">الكوبونات والخصومات</h2>
-          <p className="text-sm text-gray-500 mt-1">إدارة جميع الكوبونات والخصومات المتاحة</p>
-        </div>
-        <button
-          onClick={() => {
-            setEditingCoupon(null);
-            setShowModal(true);
-          }}
-          className="btn-primary flex items-center gap-2"
-        >
-          <Plus size={20} />
-          إضافة كوبون جديد
-        </button>
-      </div>
+    <div className="page-shell">
+      <PageHeader
+        title="الكوبونات والخصومات"
+        description="إدارة جميع الكوبونات والخصومات المتاحة"
+        actions={
+          <Button
+            icon={Plus}
+            onClick={() => {
+              setEditingCoupon(null);
+              setShowModal(true);
+            }}
+          >
+            إضافة كوبون جديد
+          </Button>
+        }
+      />
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-primary-50 border border-primary-200 flex items-center justify-center">
-              <Ticket className="text-primary-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{couponsList.length}</p>
-              <p className="text-xs text-gray-500">إجمالي الكوبونات</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-green-50 border border-green-200 flex items-center justify-center">
-              <CheckCircle className="text-green-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{activeCoupons}</p>
-              <p className="text-xs text-gray-500">كوبونات نشطة</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center">
-              <XCircle className="text-red-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{expiredCoupons}</p>
-              <p className="text-xs text-gray-500">كوبونات منتهية</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-purple-50 border border-purple-200 flex items-center justify-center">
-              <TrendingUp className="text-purple-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{totalUsage}</p>
-              <p className="text-xs text-gray-500">إجمالي الاستخدامات</p>
-            </div>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard title="إجمالي الكوبونات" value={couponsList.length} icon={Ticket} tone="violet" />
+        <StatCard title="كوبونات نشطة" value={activeCoupons} icon={CheckCircle} tone="emerald" />
+        <StatCard title="كوبونات منتهية" value={expiredCoupons} icon={XCircle} tone="orange" />
+        <StatCard title="إجمالي الاستخدامات" value={totalUsage} icon={TrendingUp} tone="fuchsia" />
       </div>
 
       {/* Data Table */}

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Modal from '../../components/common/Modal';
+import { PageHeader, StatCard, Button, PageLoading, Card, CardTitle } from '../../components/ui';
 
 const ContentModeration = () => {
   const [showAddWordModal, setShowAddWordModal] = useState(false);
@@ -99,96 +100,28 @@ const ContentModeration = () => {
     testMutation.mutate({ text: testText });
   };
 
-  if (statsLoading || wordsLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <div className="text-gray-700 font-medium">جاري التحميل...</div>
-        </div>
-      </div>
-    );
-  }
+  if (statsLoading || wordsLoading) return <PageLoading />;
 
   const statsData = stats || {};
   const wordsData = bannedWords || { arabic: [], english: [] };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">فلترة المحتوى</h2>
-          <p className="text-sm text-gray-500 mt-1">إدارة نظام فلترة المحتوى الحساس وغير المناسب</p>
-        </div>
-        <button
-          onClick={() => setShowAddWordModal(true)}
-          className="btn-primary flex items-center gap-2"
-        >
-          <Plus size={20} />
-          إضافة كلمة محظورة
-        </button>
+    <div className="page-shell">
+      <PageHeader
+        title="فلترة المحتوى"
+        description="إدارة نظام فلترة المحتوى الحساس وغير المناسب"
+        actions={<Button icon={Plus} onClick={() => setShowAddWordModal(true)}>إضافة كلمة محظورة</Button>}
+      />
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard title="كلمات محظورة" value={statsData.bannedWordsCount || 0} icon={Shield} tone="violet" />
+        <StatCard title="كلمات عربية" value={statsData.arabicWordsCount || 0} icon={FileText} tone="sky" />
+        <StatCard title="كلمات إنجليزية" value={statsData.englishWordsCount || 0} icon={FileText} tone="emerald" />
+        <StatCard title="أنماط حساسة" value={statsData.patternsCount || 0} icon={AlertTriangle} tone="fuchsia" />
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-primary-50 border border-primary-200 flex items-center justify-center">
-              <Shield className="text-primary-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                {statsData.bannedWordsCount || 0}
-              </p>
-              <p className="text-xs text-gray-500">إجمالي الكلمات المحظورة</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center">
-              <FileText className="text-blue-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                {statsData.arabicWordsCount || 0}
-              </p>
-              <p className="text-xs text-gray-500">كلمات عربية</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-green-50 border border-green-200 flex items-center justify-center">
-              <FileText className="text-green-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                {statsData.englishWordsCount || 0}
-              </p>
-              <p className="text-xs text-gray-500">كلمات إنجليزية</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-purple-50 border border-purple-200 flex items-center justify-center">
-              <AlertTriangle className="text-purple-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                {statsData.patternsCount || 0}
-              </p>
-              <p className="text-xs text-gray-500">أنماط حساسة</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Features Status */}
-      <div className="glass-card rounded-2xl p-6 border border-gray-200">
-        <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+      <Card>
+        <h3 className="mb-4 flex items-center gap-2 text-xl font-bold text-slate-900 dark:text-white">
           <Shield size={24} className="text-primary-600" />
           حالة الميزات
         </h3>
@@ -233,10 +166,9 @@ const ContentModeration = () => {
             </div>
           </div>
         </div>
-      </div>
+      </Card>
 
-      {/* Test Content */}
-      <div className="glass-card rounded-2xl p-6 border border-gray-200">
+      <Card>
         <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
           <TestTube size={24} className="text-primary-600" />
           اختبار المحتوى
@@ -286,12 +218,12 @@ const ContentModeration = () => {
             </div>
           )}
         </form>
-      </div>
+      </Card>
 
       {/* Banned Words Lists */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Arabic Words */}
-        <div className="glass-card rounded-2xl p-6 border border-gray-200">
+        <Card>
           <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
             <FileText size={24} className="text-primary-600" />
             الكلمات المحظورة (عربي) ({wordsData.arabic?.length || 0})
@@ -318,10 +250,9 @@ const ContentModeration = () => {
               <p className="text-center text-gray-500 py-8">لا توجد كلمات محظورة</p>
             )}
           </div>
-        </div>
+        </Card>
 
-        {/* English Words */}
-        <div className="glass-card rounded-2xl p-6 border border-gray-200">
+        <Card>
           <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
             <FileText size={24} className="text-primary-600" />
             الكلمات المحظورة (إنجليزي) ({wordsData.english?.length || 0})
@@ -348,7 +279,7 @@ const ContentModeration = () => {
               <p className="text-center text-gray-500 py-8">لا توجد كلمات محظورة</p>
             )}
           </div>
-        </div>
+        </Card>
       </div>
 
       {/* Add Word Modal */}

@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { tags } from '../../api/admin';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
+import { PageHeader, StatCard, Button, PageLoading, PageError } from '../../components/ui';
 
 const Tags = () => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ const Tags = () => {
   const [page, setPage] = useState(1);
   const limit = 20;
 
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['admin-tags', page],
     queryFn: async () => {
       const response = await tags.getAll({ page, limit });
@@ -58,6 +59,9 @@ const Tags = () => {
       toast.error('فشل حذف التاج');
     },
   });
+
+  if (isLoading) return <PageLoading />;
+  if (error) return <PageError detail={error?.message} onRetry={() => refetch()} />;
 
   const tagsList = data?.data?.tags || [];
 
@@ -184,77 +188,28 @@ const Tags = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">التاجات</h2>
-          <p className="text-sm text-gray-500 mt-1">إدارة جميع التاجات المستخدمة في المنشورات</p>
-        </div>
-        <button
-          onClick={() => {
-            setEditingTag(null);
-            setShowModal(true);
-          }}
-          className="btn-primary flex items-center gap-2"
-        >
-          <Plus size={20} />
-          إضافة تاج جديد
-        </button>
-      </div>
+    <div className="page-shell">
+      <PageHeader
+        title="التاجات"
+        description="إدارة جميع التاجات المستخدمة في المنشورات"
+        actions={
+          <Button
+            icon={Plus}
+            onClick={() => {
+              setEditingTag(null);
+              setShowModal(true);
+            }}
+          >
+            إضافة تاج جديد
+          </Button>
+        }
+      />
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-primary-50 border border-primary-200 flex items-center justify-center">
-              <Hash className="text-primary-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{tagsList.length}</p>
-              <p className="text-xs text-gray-500">إجمالي التاجات</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-green-50 border border-green-200 flex items-center justify-center">
-              <TrendingUp className="text-green-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                {tagsList.filter(t => (t.usageCount || 0) > 50).length}
-              </p>
-              <p className="text-xs text-gray-500">تاجات شائعة</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center">
-              <FileText className="text-blue-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                {tagsList.reduce((sum, tag) => sum + (tag.usageCount || 0), 0)}
-              </p>
-              <p className="text-xs text-gray-500">إجمالي الاستخدامات</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-yellow-50 border border-yellow-200 flex items-center justify-center">
-              <Hash className="text-yellow-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                {tagsList.filter(t => (t.usageCount || 0) === 0).length}
-              </p>
-              <p className="text-xs text-gray-500">تاجات غير مستخدمة</p>
-            </div>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard title="إجمالي التاجات" value={tagsList.length} icon={Hash} tone="violet" />
+        <StatCard title="تاجات شائعة" value={tagsList.filter(t => (t.usageCount || 0) > 50).length} icon={TrendingUp} tone="emerald" />
+        <StatCard title="إجمالي الاستخدامات" value={tagsList.reduce((sum, tag) => sum + (tag.usageCount || 0), 0)} icon={FileText} tone="sky" />
+        <StatCard title="تاجات غير مستخدمة" value={tagsList.filter(t => (t.usageCount || 0) === 0).length} icon={Hash} tone="amber" />
       </div>
 
       {/* Data Table */}

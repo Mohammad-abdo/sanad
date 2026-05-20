@@ -118,6 +118,24 @@
     box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.15);
   }
 
+  /* Modern surface — preferred for new pages (no hover lift) */
+  .surface-card {
+    background: #ffffff;
+    border: 1px solid rgb(226 232 240 / 0.9);
+    box-shadow: 0 1px 3px 0 rgb(15 23 42 / 0.06), 0 1px 2px -1px rgb(15 23 42 / 0.06);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  html.dark .surface-card {
+    background: rgb(15 23 42 / 0.88);
+    border-color: rgb(51 65 85 / 0.65);
+    box-shadow: 0 4px 24px 0 rgb(0 0 0 / 0.25);
+  }
+
+  .page-shell {
+    @apply w-full space-y-6;
+  }
+
   html.dark .glass {
     background: rgba(30, 41, 59, 0.72);
     border-color: rgba(100, 116, 139, 0.35);
@@ -227,7 +245,11 @@
   }
   
   .input {
-    @apply w-full px-4 py-3 bg-white/80 backdrop-blur-md border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 outline-none transition-all duration-300 text-gray-900 placeholder:text-gray-500;
+    @apply w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all duration-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-400/25 dark:border-slate-600 dark:bg-slate-800/90 dark:text-slate-100 dark:placeholder:text-slate-500;
+  }
+
+  .input-sm {
+    @apply w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 outline-none transition-all focus:border-primary-400 focus:ring-2 focus:ring-primary-400/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100;
   }
   
   .input::placeholder {

@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { interests } from '../../api/admin';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
+import { PageHeader, StatCard, Button, PageLoading, PageError } from '../../components/ui';
 
 const Interests = () => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ const Interests = () => {
   const [page, setPage] = useState(1);
   const limit = 20;
 
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['admin-interests', page],
     queryFn: async () => {
       const response = await interests.getAll({ page, limit });
@@ -80,6 +81,9 @@ const Interests = () => {
       toast.error('فشل إلغاء تفعيل الاهتمام');
     },
   });
+
+  if (isLoading) return <PageLoading />;
+  if (error) return <PageError detail={error?.message} onRetry={() => refetch()} />;
 
   const interestsList = data?.data?.interests || [];
 
@@ -248,77 +252,28 @@ const Interests = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">الاهتمامات</h2>
-          <p className="text-sm text-gray-500 mt-1">إدارة جميع الاهتمامات المتاحة للمستخدمين</p>
-        </div>
-        <button
-          onClick={() => {
-            setEditingInterest(null);
-            setShowModal(true);
-          }}
-          className="btn-primary flex items-center gap-2"
-        >
-          <Plus size={20} />
-          إضافة اهتمام جديد
-        </button>
-      </div>
+    <div className="page-shell">
+      <PageHeader
+        title="الاهتمامات"
+        description="إدارة جميع الاهتمامات المتاحة للمستخدمين"
+        actions={
+          <Button
+            icon={Plus}
+            onClick={() => {
+              setEditingInterest(null);
+              setShowModal(true);
+            }}
+          >
+            إضافة اهتمام جديد
+          </Button>
+        }
+      />
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-primary-50 border border-primary-200 flex items-center justify-center">
-              <Tag className="text-primary-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{interestsList.length}</p>
-              <p className="text-xs text-gray-500">إجمالي الاهتمامات</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-green-50 border border-green-200 flex items-center justify-center">
-              <CheckCircle className="text-green-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                {interestsList.filter(i => i.isActive).length}
-              </p>
-              <p className="text-xs text-gray-500">اهتمامات نشطة</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center">
-              <Users className="text-blue-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                {interestsList.reduce((sum, interest) => sum + (interest._count?.users || 0), 0)}
-              </p>
-              <p className="text-xs text-gray-500">إجمالي المستخدمين</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-purple-50 border border-purple-200 flex items-center justify-center">
-              <FileText className="text-purple-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                {interestsList.reduce((sum, interest) => sum + (interest._count?.posts || 0), 0)}
-              </p>
-              <p className="text-xs text-gray-500">إجمالي المنشورات</p>
-            </div>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard title="إجمالي الاهتمامات" value={interestsList.length} icon={Tag} tone="violet" />
+        <StatCard title="اهتمامات نشطة" value={interestsList.filter(i => i.isActive).length} icon={CheckCircle} tone="emerald" />
+        <StatCard title="إجمالي المستخدمين" value={interestsList.reduce((sum, interest) => sum + (interest._count?.users || 0), 0)} icon={Users} tone="sky" />
+        <StatCard title="إجمالي المنشورات" value={interestsList.reduce((sum, interest) => sum + (interest._count?.posts || 0), 0)} icon={FileText} tone="fuchsia" />
       </div>
 
       {/* Data Table */}

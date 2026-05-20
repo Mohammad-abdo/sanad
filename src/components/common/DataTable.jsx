@@ -425,11 +425,11 @@ const DataTable = ({
   // Loading state
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden">
+      <div className="surface-card overflow-hidden rounded-2xl">
         <div className="p-12">
           <div className="flex flex-col items-center justify-center">
-            <Loader2 className="animate-spin text-primary-500 mb-3" size={24} />
-            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">جاري التحميل...</p>
+            <Loader2 className="mb-3 animate-spin text-primary-500" size={24} />
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">جاري التحميل...</p>
           </div>
         </div>
       </div>
@@ -437,19 +437,19 @@ const DataTable = ({
   }
 
   return (
-    <div className="admin-datatable-surface bg-white dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden">
+    <div className="admin-datatable-surface surface-card overflow-hidden rounded-2xl">
       {/* Header */}
       {(title || searchable || exportable || filterable) && (
-        <div className="px-5 py-4 border-b border-slate-200/80 dark:border-slate-700 bg-slate-50/90 dark:bg-slate-800/50">
+        <div className="border-b border-slate-200/80 bg-slate-50/90 px-5 py-4 dark:border-slate-700 dark:bg-slate-800/50">
           <div className="flex flex-col gap-3">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               {title && (
-                <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">{title}</h3>
               )}
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex flex-wrap items-center gap-2">
                 {searchable && (
                   <div className="relative">
-                    <Search className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                     <input
                       type="text"
                       placeholder="بحث..."
@@ -458,17 +458,18 @@ const DataTable = ({
                         setSearchTerm(e.target.value);
                         setCurrentPage(1);
                       }}
-                      className="w-full sm:w-64 pl-9 pr-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 text-gray-900 placeholder:text-gray-400"
+                      className="input-sm w-full sm:w-64 !pe-9"
                     />
                   </div>
                 )}
                 {filterable && filterConfigs.length > 0 && (
                   <button
+                    type="button"
                     onClick={() => setShowFilters(!showFilters)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-gray-300 rounded-md transition-colors ${
+                    className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
                       showFilters || hasActiveFilters
-                        ? 'bg-gray-900 text-white border-gray-900'
-                        : 'bg-white text-gray-700 hover:bg-gray-50'
+                        ? 'border-primary-600 bg-primary-600 text-white'
+                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200'
                     }`}
                   >
                     <SlidersHorizontal size={14} />

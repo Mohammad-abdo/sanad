@@ -33,7 +33,7 @@ const ActivityLogDetails = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl">
+        <div className="surface-card p-8 rounded-2xl">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
           <div className="text-gray-700 font-medium">جاري التحميل...</div>
         </div>
@@ -44,7 +44,7 @@ const ActivityLogDetails = () => {
   if (error || !log) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl text-center">
+        <div className="surface-card p-8 rounded-2xl text-center">
           <AlertCircle className="mx-auto text-red-500 mb-4" size={48} />
           <h3 className="text-xl font-bold text-gray-900 mb-2">السجل غير موجود</h3>
           <p className="text-gray-600 mb-4">لم يتم العثور على بيانات السجل</p>
@@ -105,7 +105,7 @@ const ActivityLogDetails = () => {
   const ActionIcon = actionConfig.icon;
 
   return (
-    <div className="space-y-6">
+    <div className="page-shell">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -123,21 +123,21 @@ const ActivityLogDetails = () => {
 
       {/* Main Info Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className={`w-16 h-16 rounded-xl ${actionConfig.bgColor} flex items-center justify-center mx-auto mb-3`}>
             <ActionIcon className={actionConfig.color.replace('bg-', 'text-').split(' ')[0]} size={32} />
           </div>
           <p className="text-2xl font-bold text-gray-900 mb-1">{actionConfig.label}</p>
           <p className="text-sm text-gray-500">الإجراء</p>
         </div>
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className="w-16 h-16 rounded-xl bg-primary-50 border border-primary-200 flex items-center justify-center mx-auto mb-3">
             <FileText className="text-primary-600" size={28} />
           </div>
           <p className="text-2xl font-bold text-gray-900 mb-1">{log.entityType || '-'}</p>
           <p className="text-sm text-gray-500">نوع الكيان</p>
         </div>
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className="w-16 h-16 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center mx-auto mb-3">
             <Shield className="text-purple-600" size={28} />
           </div>
@@ -146,7 +146,7 @@ const ActivityLogDetails = () => {
           </p>
           <p className="text-sm text-gray-500">الأدمن</p>
         </div>
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className="w-16 h-16 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center mx-auto mb-3">
             <Calendar className="text-blue-600" size={28} />
           </div>
@@ -164,7 +164,7 @@ const ActivityLogDetails = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Admin Information */}
         {log.admin && (
-          <div className="glass-card rounded-2xl p-6 border border-gray-200">
+          <div className="surface-card rounded-2xl p-6 border border-gray-200">
             <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
               <User size={24} className="text-primary-600" />
               معلومات الأدمن
@@ -199,7 +199,7 @@ const ActivityLogDetails = () => {
         )}
 
         {/* Activity Information */}
-        <div className="glass-card rounded-2xl p-6 border border-gray-200">
+        <div className="surface-card rounded-2xl p-6 border border-gray-200">
           <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
             <Activity size={24} className="text-primary-600" />
             معلومات النشاط
@@ -260,7 +260,7 @@ const ActivityLogDetails = () => {
 
       {/* Description Section */}
       {log.description && (
-        <div className="glass-card rounded-2xl p-6 border border-gray-200">
+        <div className="surface-card rounded-2xl p-6 border border-gray-200">
           <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
             <FileText size={24} className="text-primary-600" />
             الوصف
@@ -273,7 +273,7 @@ const ActivityLogDetails = () => {
 
       {/* Metadata Section */}
       {log.metadata && (
-        <div className="glass-card rounded-2xl p-6 border border-gray-200">
+        <div className="surface-card rounded-2xl p-6 border border-gray-200">
           <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
             <Info size={24} className="text-primary-600" />
             البيانات الإضافية

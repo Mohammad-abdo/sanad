@@ -257,7 +257,7 @@ const WalletDetails = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl">
+        <div className="surface-card p-8 rounded-2xl">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4" />
           <div className="text-gray-700 font-medium">جاري التحميل...</div>
         </div>
@@ -268,7 +268,7 @@ const WalletDetails = () => {
   if (error || !data) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl text-center">
+        <div className="surface-card p-8 rounded-2xl text-center">
           <XCircle className="mx-auto text-red-500 mb-4" size={48} />
           <h3 className="text-xl font-bold text-gray-900 mb-2">تعذر تحميل المحفظة</h3>
           <p className="text-gray-600 mb-4">يرجى المحاولة لاحقاً أو التأكد من رقم الطبيب.</p>
@@ -301,7 +301,7 @@ const WalletDetails = () => {
   })();
 
   return (
-    <div className="space-y-6">
+    <div className="page-shell">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <button
@@ -339,7 +339,7 @@ const WalletDetails = () => {
 
       {doctor.walletFrozen && (
         <div
-          className="glass-card rounded-xl p-4 border border-red-200 bg-red-50/80 text-red-800 text-sm"
+          className="surface-card rounded-xl p-4 border border-red-200 bg-red-50/80 text-red-800 text-sm"
           dir="rtl"
         >
           <strong>المحفظة موقوفة:</strong> لا يمكن للطبيب إنشاء طلبات سحب جديدة من التطبيق. يمكنك
@@ -348,7 +348,7 @@ const WalletDetails = () => {
       )}
 
       {/* Wallet Summary */}
-      <div className="glass-card rounded-2xl p-8 bg-white border border-primary-200">
+      <div className="surface-card rounded-2xl p-8 bg-white border border-primary-200">
         <div className="flex items-start gap-6">
           <div className="w-16 h-16 rounded-xl bg-primary-50 border border-primary-200 flex items-center justify-center">
             <Wallet size={30} className="text-primary-600" />
@@ -405,7 +405,7 @@ const WalletDetails = () => {
       </div>
 
       {/* Transactions */}
-      <div className="glass-card rounded-2xl p-6 bg-white border border-gray-200">
+      <div className="surface-card rounded-2xl p-6 bg-white border border-gray-200">
         <h3 className="text-xl font-bold text-gray-900 mb-4">معاملات المحفظة</h3>
         <DataTable
           data={transactions}
@@ -424,7 +424,7 @@ const WalletDetails = () => {
       </div>
 
       {/* Pending Withdrawals (Dedicated Block) */}
-      <div className="glass-card rounded-2xl p-6 bg-white border border-gray-200">
+      <div className="surface-card rounded-2xl p-6 bg-white border border-gray-200">
         <h3 className="text-xl font-bold text-gray-900 mb-4">طلبات السحب (معلقة)</h3>
         <DataTable
           data={pendingWithdrawals}

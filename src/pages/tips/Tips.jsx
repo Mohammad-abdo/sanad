@@ -5,13 +5,14 @@ import { Lightbulb, Check, Star, Trash2, User, Calendar, Plus, Eye, TrendingUp, 
 import toast from 'react-hot-toast';
 import { tips } from '../../api/admin';
 import DataTable from '../../components/common/DataTable';
+import { PageHeader, StatCard, PageLoading, PageError } from '../../components/ui';
 
 const Tips = () => {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const limit = 20;
 
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['admin-tips', page],
     queryFn: async () => {
       const response = await tips.getAll({ page, limit });
@@ -51,6 +52,9 @@ const Tips = () => {
       toast.error('فشل حذف النصيحة');
     },
   });
+
+  if (isLoading) return <PageLoading />;
+  if (error) return <PageError detail={error?.message} onRetry={() => refetch()} />;
 
   const tipsList = data?.data?.tips || [];
 
@@ -198,67 +202,17 @@ const Tips = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">النصائح</h2>
-          <p className="text-sm text-gray-500 mt-1">إدارة جميع النصائح المقدمة من الأطباء</p>
-        </div>
-      </div>
+    <div className="page-shell">
+      <PageHeader
+        title="النصائح"
+        description="إدارة جميع النصائح المقدمة من الأطباء"
+      />
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-yellow-50 border border-yellow-200 flex items-center justify-center">
-              <Lightbulb className="text-yellow-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{tipsList.length}</p>
-              <p className="text-xs text-gray-500">إجمالي النصائح</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-green-50 border border-green-200 flex items-center justify-center">
-              <Check className="text-green-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                {tipsList.filter(t => t.isVerified).length}
-              </p>
-              <p className="text-xs text-gray-500">نصائح موثقة</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-yellow-50 border border-yellow-200 flex items-center justify-center">
-              <Star className="text-yellow-600 fill-yellow-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                {tipsList.filter(t => t.isFeatured).length}
-              </p>
-              <p className="text-xs text-gray-500">نصائح مميزة</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center">
-              <Heart className="text-red-600 fill-red-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                {tipsList.reduce((sum, tip) => sum + (tip.likes || 0), 0)}
-              </p>
-              <p className="text-xs text-gray-500">إجمالي الإعجابات</p>
-            </div>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard title="إجمالي النصائح" value={tipsList.length} icon={Lightbulb} tone="amber" />
+        <StatCard title="نصائح موثقة" value={tipsList.filter(t => t.isVerified).length} icon={Check} tone="emerald" />
+        <StatCard title="نصائح مميزة" value={tipsList.filter(t => t.isFeatured).length} icon={Star} tone="amber" />
+        <StatCard title="إجمالي الإعجابات" value={tipsList.reduce((sum, tip) => sum + (tip.likes || 0), 0)} icon={Heart} tone="orange" />
       </div>
 
       {/* Data Table */}

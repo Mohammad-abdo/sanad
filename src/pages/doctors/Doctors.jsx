@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { getApiErrorMessage } from '../../utils/apiError';
 import DataTable from '../../components/common/DataTable';
+import { PageHeader, StatCard, Button } from '../../components/ui';
 
 const Doctors = () => {
   const navigate = useNavigate();
@@ -298,80 +299,19 @@ const Doctors = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">الأطباء</h2>
-          <p className="text-sm text-gray-500 mt-1">إدارة جميع الأطباء في النظام</p>
-        </div>
-        <button
-          type="button"
-          onClick={() => navigate('/doctors/new')}
-          className="btn-primary flex items-center gap-2"
-        >
-          <Plus size={20} />
-          إضافة طبيب
-        </button>
-      </div>
+    <div className="page-shell">
+      <PageHeader
+        title="الأطباء"
+        description="إدارة جميع الأطباء في النظام"
+        actions={<Button icon={Plus} onClick={() => navigate('/doctors/new')}>إضافة طبيب</Button>}
+      />
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-primary-50 border border-primary-200 flex items-center justify-center">
-              <Stethoscope className="text-primary-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{total}</p>
-              <p className="text-xs text-gray-500">إجمالي الأطباء</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-green-50 border border-green-200 flex items-center justify-center">
-              <Check className="text-green-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{approvedCount}</p>
-              <p className="text-xs text-gray-500">موافق عليهم</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-yellow-50 border border-yellow-200 flex items-center justify-center">
-              <AlertCircle className="text-yellow-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{pendingCount}</p>
-              <p className="text-xs text-gray-500">بانتظار الموافقة</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center">
-              <Shield className="text-blue-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{verifiedCount}</p>
-              <p className="text-xs text-gray-500">موثقين</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-purple-50 border border-purple-200 flex items-center justify-center">
-              <UserCheck className="text-purple-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{activeCount}</p>
-              <p className="text-xs text-gray-500">نشطين</p>
-            </div>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <StatCard title="إجمالي الأطباء" value={total} icon={Stethoscope} tone="violet" />
+        <StatCard title="موافق عليهم" value={approvedCount} icon={Check} tone="emerald" />
+        <StatCard title="بانتظار الموافقة" value={pendingCount} icon={AlertCircle} tone="amber" />
+        <StatCard title="موثقين" value={verifiedCount} icon={Shield} tone="sky" />
+        <StatCard title="نشطين" value={activeCount} icon={UserCheck} tone="fuchsia" />
       </div>
 
       {/* Data Table */}

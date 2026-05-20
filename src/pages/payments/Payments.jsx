@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { payments, withdrawals } from '../../api/admin';
 import { DollarSign, TrendingUp, Clock, Calendar, User, Check, X, CreditCard, Wallet, AlertCircle, ArrowDown, ArrowUp, Stethoscope } from 'lucide-react';
 import DataTable from '../../components/common/DataTable';
+import { PageHeader, StatCard, Tabs } from '../../components/ui';
 import toast from 'react-hot-toast';
 import { useAppCurrency } from '../../utils/currency';
 
@@ -310,105 +311,26 @@ const Payments = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">المدفوعات والسحوبات</h2>
-          <p className="text-sm text-gray-500 mt-1">إدارة جميع المعاملات المالية</p>
-        </div>
-      </div>
+    <div className="page-shell">
+      <PageHeader title="المدفوعات والسحوبات" description="إدارة جميع المعاملات المالية" />
 
-      {/* Tabs */}
-      <div className="flex gap-4 border-b border-gray-200">
-        <button
-          onClick={() => setActiveTab('payments')}
-          className={`px-6 py-3 font-semibold transition-colors relative ${
-            activeTab === 'payments' 
-              ? 'text-primary-600' 
-              : 'text-gray-600 hover:text-gray-900'
-          }`}
-        >
-          المدفوعات
-          {activeTab === 'payments' && (
-            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600"></span>
-          )}
-        </button>
-        <button
-          onClick={() => setActiveTab('withdrawals')}
-          className={`px-6 py-3 font-semibold transition-colors relative ${
-            activeTab === 'withdrawals' 
-              ? 'text-primary-600' 
-              : 'text-gray-600 hover:text-gray-900'
-          }`}
-        >
-          طلبات السحب
-          {activeTab === 'withdrawals' && (
-            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600"></span>
-          )}
-        </button>
-      </div>
+      <Tabs
+        active={activeTab}
+        onChange={setActiveTab}
+        tabs={[
+          { id: 'payments', label: 'المدفوعات' },
+          { id: 'withdrawals', label: 'طلبات السحب' },
+        ]}
+      />
 
-      {/* Payments Tab */}
       {activeTab === 'payments' && (
         <>
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div className="glass-card rounded-xl p-6 border border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg bg-primary-50 border border-primary-200 flex items-center justify-center">
-                  <CreditCard className="text-primary-600" size={24} />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">{totalPayments}</p>
-                  <p className="text-xs text-gray-500">إجمالي المدفوعات</p>
-                </div>
-              </div>
-            </div>
-            <div className="glass-card rounded-xl p-6 border border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg bg-green-50 border border-green-200 flex items-center justify-center">
-                  <Check className="text-green-600" size={24} />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">{completedPayments}</p>
-                  <p className="text-xs text-gray-500">مكتملة</p>
-                </div>
-              </div>
-            </div>
-            <div className="glass-card rounded-xl p-6 border border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg bg-yellow-50 border border-yellow-200 flex items-center justify-center">
-                  <Clock className="text-yellow-600" size={24} />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">{pendingPayments}</p>
-                  <p className="text-xs text-gray-500">معلقة</p>
-                </div>
-              </div>
-            </div>
-            <div className="glass-card rounded-xl p-6 border border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center">
-                  <X className="text-red-600" size={24} />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">{failedPayments}</p>
-                  <p className="text-xs text-gray-500">فاشلة</p>
-                </div>
-              </div>
-            </div>
-            <div className="glass-card rounded-xl p-6 border border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center">
-                  <DollarSign className="text-blue-600" size={24} />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">{totalPaymentsAmount.toFixed(2)}</p>
-                  <p className="text-xs text-gray-500">{`إجمالي المبلغ (${currency})`}</p>
-                </div>
-              </div>
-            </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+            <StatCard title="إجمالي المدفوعات" value={totalPayments} icon={CreditCard} tone="violet" />
+            <StatCard title="مكتملة" value={completedPayments} icon={Check} tone="emerald" />
+            <StatCard title="معلقة" value={pendingPayments} icon={Clock} tone="amber" />
+            <StatCard title="فاشلة" value={failedPayments} icon={X} tone="orange" />
+            <StatCard title={`إجمالي المبلغ (${currency})`} value={formatMoney(totalPaymentsAmount)} icon={DollarSign} tone="sky" />
           </div>
 
           <DataTable
@@ -462,66 +384,14 @@ const Payments = () => {
         </>
       )}
 
-      {/* Withdrawals Tab */}
       {activeTab === 'withdrawals' && (
         <>
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div className="glass-card rounded-xl p-6 border border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg bg-primary-50 border border-primary-200 flex items-center justify-center">
-                  <ArrowUp className="text-primary-600" size={24} />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">{totalWithdrawals}</p>
-                  <p className="text-xs text-gray-500">إجمالي الطلبات</p>
-                </div>
-              </div>
-            </div>
-            <div className="glass-card rounded-xl p-6 border border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg bg-yellow-50 border border-yellow-200 flex items-center justify-center">
-                  <Clock className="text-yellow-600" size={24} />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">{pendingWithdrawals}</p>
-                  <p className="text-xs text-gray-500">معلقة</p>
-                </div>
-              </div>
-            </div>
-            <div className="glass-card rounded-xl p-6 border border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg bg-green-50 border border-green-200 flex items-center justify-center">
-                  <Check className="text-green-600" size={24} />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">{completedWithdrawals}</p>
-                  <p className="text-xs text-gray-500">مكتملة</p>
-                </div>
-              </div>
-            </div>
-            <div className="glass-card rounded-xl p-6 border border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center">
-                  <X className="text-red-600" size={24} />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">{rejectedWithdrawals}</p>
-                  <p className="text-xs text-gray-500">مرفوضة</p>
-                </div>
-              </div>
-            </div>
-            <div className="glass-card rounded-xl p-6 border border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center">
-                  <DollarSign className="text-blue-600" size={24} />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">{totalWithdrawalsAmount.toFixed(2)}</p>
-                  <p className="text-xs text-gray-500">{`إجمالي المبلغ (${currency})`}</p>
-                </div>
-              </div>
-            </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+            <StatCard title="إجمالي الطلبات" value={totalWithdrawals} icon={ArrowUp} tone="violet" />
+            <StatCard title="معلقة" value={pendingWithdrawals} icon={Clock} tone="amber" />
+            <StatCard title="مكتملة" value={completedWithdrawals} icon={Check} tone="emerald" />
+            <StatCard title="مرفوضة" value={rejectedWithdrawals} icon={X} tone="orange" />
+            <StatCard title={`إجمالي المبلغ (${currency})`} value={formatMoney(totalWithdrawalsAmount)} icon={DollarSign} tone="sky" />
           </div>
 
           <DataTable

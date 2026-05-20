@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { activityLogs } from '../../api/admin';
 import DataTable from '../../components/common/DataTable';
+import { PageHeader, StatCard, Button, PageLoading, PageError } from '../../components/ui';
 import toast from 'react-hot-toast';
 
 const ActivityLogs = () => {
@@ -60,30 +61,8 @@ const ActivityLogs = () => {
     }
   };
 
-  if (isLoading && !data) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <div className="text-gray-700 font-medium">جاري التحميل...</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl text-center">
-          <AlertCircle className="mx-auto text-red-500 mb-4" size={48} />
-          <p className="text-red-600 mb-4">خطأ في تحميل البيانات</p>
-          <button onClick={() => refetch()} className="btn-primary">
-            إعادة المحاولة
-          </button>
-        </div>
-      </div>
-    );
-  }
+  if (isLoading) return <PageLoading />;
+  if (error) return <PageError detail={error?.message} onRetry={() => refetch()} />;
 
   const logsList = data?.data?.logs || data?.logs || [];
   const total = data?.data?.pagination?.total || data?.pagination?.total || logsList.length;
@@ -206,81 +185,23 @@ const ActivityLogs = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">سجل الأنشطة</h2>
-          <p className="text-sm text-gray-500 mt-1">تتبع جميع الأنشطة والإجراءات في النظام</p>
-        </div>
-        <button
-          onClick={handleExport}
-          className="btn-primary flex items-center gap-2"
-        >
-          <Download size={20} />
-          تصدير السجل
-        </button>
-      </div>
+    <div className="page-shell">
+      <PageHeader
+        title="سجل الأنشطة"
+        description="تتبع جميع الأنشطة والإجراءات في النظام"
+        actions={
+          <Button icon={Download} onClick={handleExport}>
+            تصدير السجل
+          </Button>
+        }
+      />
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-primary-50 border border-primary-200 flex items-center justify-center">
-              <Activity className="text-primary-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{total}</p>
-              <p className="text-xs text-gray-500">إجمالي السجلات</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-green-50 border border-green-200 flex items-center justify-center">
-              <CheckCircle className="text-green-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{createCount + approveCount}</p>
-              <p className="text-xs text-gray-500">إنشاء/موافقة</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center">
-              <Edit className="text-blue-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{updateCount}</p>
-              <p className="text-xs text-gray-500">تحديثات</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center">
-              <Trash2 className="text-red-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{deleteCount + rejectCount}</p>
-              <p className="text-xs text-gray-500">حذف/رفض</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-purple-50 border border-purple-200 flex items-center justify-center">
-              <Shield className="text-purple-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                {logsList.filter(log => log.admin).length}
-              </p>
-              <p className="text-xs text-gray-500">أنشطة أدمن</p>
-            </div>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <StatCard title="إجمالي السجلات" value={total} icon={Activity} tone="violet" />
+        <StatCard title="إنشاء/موافقة" value={createCount + approveCount} icon={CheckCircle} tone="emerald" />
+        <StatCard title="تحديثات" value={updateCount} icon={Edit} tone="sky" />
+        <StatCard title="حذف/رفض" value={deleteCount + rejectCount} icon={Trash2} tone="orange" />
+        <StatCard title="أنشطة أدمن" value={logsList.filter(log => log.admin).length} icon={Shield} tone="fuchsia" />
       </div>
 
       {/* Data Table */}

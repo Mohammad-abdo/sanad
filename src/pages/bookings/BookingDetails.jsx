@@ -71,7 +71,7 @@ const BookingDetails = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl">
+        <div className="surface-card p-8 rounded-2xl">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
           <div className="text-gray-700 font-medium">جاري التحميل...</div>
         </div>
@@ -82,7 +82,7 @@ const BookingDetails = () => {
   if (error || !booking) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl text-center">
+        <div className="surface-card p-8 rounded-2xl text-center">
           <AlertCircle className="mx-auto text-red-500 mb-4" size={48} />
           <h3 className="text-xl font-bold text-gray-900 mb-2">الحجز غير موجود</h3>
           <p className="text-gray-600 mb-4">لم يتم العثور على بيانات الحجز</p>
@@ -131,7 +131,7 @@ const BookingDetails = () => {
   const SessionTypeIcon = getSessionTypeIcon(booking.sessionType);
 
   return (
-    <div className="space-y-6">
+    <div className="page-shell">
       {/* Header */}
       <div className="flex items-center justify-between">
         <button
@@ -183,7 +183,7 @@ const BookingDetails = () => {
       </div>
 
       {/* Booking Header Card */}
-      <div className="glass-card rounded-2xl p-8 bg-white border border-primary-200">
+      <div className="surface-card rounded-2xl p-8 bg-white border border-primary-200">
         <div className="flex items-start gap-6">
           <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-2xl">
             <Calendar className="text-white" size={48} />
@@ -226,7 +226,7 @@ const BookingDetails = () => {
       {/* Booking Information */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Doctor Information */}
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
+        <div className="surface-card rounded-xl p-6 border border-gray-200">
           <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
             <Stethoscope className="text-primary-600" size={20} />
             معلومات الطبيب
@@ -268,7 +268,7 @@ const BookingDetails = () => {
         </div>
 
         {/* User Information */}
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
+        <div className="surface-card rounded-xl p-6 border border-gray-200">
           <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
             <User className="text-primary-600" size={20} />
             معلومات المستخدم
@@ -303,7 +303,7 @@ const BookingDetails = () => {
 
       {/* Booking Details */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
+        <div className="surface-card rounded-xl p-6 border border-gray-200">
           <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
             <Calendar className="text-primary-600" size={20} />
             تفاصيل الحجز
@@ -343,7 +343,7 @@ const BookingDetails = () => {
           </div>
         </div>
 
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
+        <div className="surface-card rounded-xl p-6 border border-gray-200">
           <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
             <FileText className="text-primary-600" size={20} />
             معلومات إضافية
@@ -400,7 +400,7 @@ const BookingDetails = () => {
 
       {/* Rating Section */}
       {booking.rating && (
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
+        <div className="surface-card rounded-xl p-6 border border-gray-200">
           <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
             <Star className="text-yellow-500 fill-yellow-500" size={20} />
             التقييم

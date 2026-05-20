@@ -5,6 +5,7 @@ import { Bell, Trash2, Check, CheckCheck, Eye, Calendar, User, Stethoscope, Aler
 import toast from 'react-hot-toast';
 import { notifications } from '../../api/admin';
 import DataTable from '../../components/common/DataTable';
+import { PageHeader, StatCard, Button, PageLoading, PageError } from '../../components/ui';
 
 const Notifications = () => {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ const Notifications = () => {
   const limit = 20;
   const queryClient = useQueryClient();
 
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['admin-notifications', filter, page],
     queryFn: async () => {
       const response = await notifications.getAll({
@@ -65,6 +66,9 @@ const Notifications = () => {
   const handleClearAll = () => {
     clearAllMutation.mutate();
   };
+
+  if (isLoading) return <PageLoading />;
+  if (error) return <PageError detail={error?.message} onRetry={() => refetch()} />;
 
   const notificationsList = data?.notifications || [];
   const unreadCount = data?.unreadCount || 0;
@@ -222,81 +226,39 @@ const Notifications = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">الإشعارات</h2>
-          <p className="text-sm text-gray-500 mt-1">إدارة جميع الإشعارات في النظام</p>
-        </div>
-        <div className="flex items-center gap-2">
-          {unreadCount > 0 && (
-            <button
-              onClick={() => markAllAsReadMutation.mutate()}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
-            >
-              <CheckCheck size={16} />
-              تحديد الكل كمقروء
-            </button>
-          )}
-          <button
-            onClick={handleClearAll}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-700 bg-white border border-red-300 rounded-xl hover:bg-red-50 transition-colors"
-          >
-            <Trash2 size={16} />
-            مسح الكل
-          </button>
-        </div>
-      </div>
+    <div className="page-shell">
+      <PageHeader
+        title="الإشعارات"
+        description="إدارة جميع الإشعارات في النظام"
+        actions={
+          <div className="flex items-center gap-2">
+            {unreadCount > 0 && (
+              <Button
+                variant="secondary"
+                size="sm"
+                icon={CheckCheck}
+                onClick={() => markAllAsReadMutation.mutate()}
+              >
+                تحديد الكل كمقروء
+              </Button>
+            )}
+            <Button variant="danger" size="sm" icon={Trash2} onClick={handleClearAll}>
+              مسح الكل
+            </Button>
+          </div>
+        }
+      />
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-primary-50 border border-primary-200 flex items-center justify-center">
-              <Bell className="text-primary-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{notificationsList.length}</p>
-              <p className="text-xs text-gray-500">إجمالي الإشعارات</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-primary-50 border border-primary-200 flex items-center justify-center">
-              <AlertCircle className="text-primary-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{unreadCount}</p>
-              <p className="text-xs text-gray-500">غير مقروء</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-green-50 border border-green-200 flex items-center justify-center">
-              <Check className="text-green-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{readCount}</p>
-              <p className="text-xs text-gray-500">مقروء</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center">
-              <TrendingUp className="text-blue-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                {notificationsList.length > 0 ? Math.round((readCount / notificationsList.length) * 100) : 0}%
-              </p>
-              <p className="text-xs text-gray-500">نسبة القراءة</p>
-            </div>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard title="إجمالي الإشعارات" value={notificationsList.length} icon={Bell} tone="violet" />
+        <StatCard title="غير مقروء" value={unreadCount} icon={AlertCircle} tone="amber" />
+        <StatCard title="مقروء" value={readCount} icon={Check} tone="emerald" />
+        <StatCard
+          title="نسبة القراءة"
+          value={`${notificationsList.length > 0 ? Math.round((readCount / notificationsList.length) * 100) : 0}%`}
+          icon={TrendingUp}
+          tone="sky"
+        />
       </div>
 
       {/* Filter Tabs */}

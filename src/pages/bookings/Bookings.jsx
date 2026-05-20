@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { bookings } from '../../api/admin';
 import { Calendar, User, Clock, DollarSign, Stethoscope, Edit, Trash2, Eye, CheckCircle, XCircle, AlertCircle, TrendingUp } from 'lucide-react';
 import DataTable from '../../components/common/DataTable';
+import { PageHeader, StatCard, PageLoading, PageError } from '../../components/ui';
 import toast from 'react-hot-toast';
 import { useAppCurrency } from '../../utils/currency';
 
@@ -32,31 +33,8 @@ const Bookings = () => {
     },
   });
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <div className="text-gray-700 font-medium">جاري التحميل...</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl text-center">
-          <AlertCircle className="mx-auto text-red-500 mb-4" size={48} />
-          <p className="text-red-600 mb-4">خطأ في تحميل البيانات</p>
-          <p className="text-gray-500 text-sm mb-4">{error.message}</p>
-          <button onClick={() => refetch()} className="btn-primary">
-            إعادة المحاولة
-          </button>
-        </div>
-      </div>
-    );
-  }
+  if (isLoading) return <PageLoading />;
+  if (error) return <PageError detail={error.message} onRetry={() => refetch()} />;
 
   const bookingsList = data?.data?.bookings || [];
   const total = data?.data?.pagination?.total || bookingsList.length;
@@ -203,72 +181,15 @@ const Bookings = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">الحجوزات</h2>
-          <p className="text-sm text-gray-500 mt-1">إدارة جميع الحجوزات في النظام</p>
-        </div>
-      </div>
+    <div className="page-shell">
+      <PageHeader title="الحجوزات" description="إدارة جميع الحجوزات في النظام" />
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-primary-50 border border-primary-200 flex items-center justify-center">
-              <Calendar className="text-primary-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{total}</p>
-              <p className="text-xs text-gray-500">إجمالي الحجوزات</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-green-50 border border-green-200 flex items-center justify-center">
-              <CheckCircle className="text-green-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{completedCount}</p>
-              <p className="text-xs text-gray-500">مكتملة</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center">
-              <CheckCircle className="text-blue-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{confirmedCount}</p>
-              <p className="text-xs text-gray-500">مؤكدة</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-yellow-50 border border-yellow-200 flex items-center justify-center">
-              <AlertCircle className="text-yellow-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{pendingCount}</p>
-              <p className="text-xs text-gray-500">معلقة</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-green-50 border border-green-200 flex items-center justify-center">
-              <DollarSign className="text-green-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{totalRevenue.toFixed(2)}</p>
-              <p className="text-xs text-gray-500">{`إجمالي الإيرادات (${currency})`}</p>
-            </div>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <StatCard title="إجمالي الحجوزات" value={total} icon={Calendar} tone="violet" />
+        <StatCard title="مكتملة" value={completedCount} icon={CheckCircle} tone="emerald" />
+        <StatCard title="مؤكدة" value={confirmedCount} icon={CheckCircle} tone="sky" />
+        <StatCard title="معلقة" value={pendingCount} icon={AlertCircle} tone="amber" />
+        <StatCard title={`إيرادات الصفحة (${currency})`} value={formatMoney(totalRevenue)} icon={DollarSign} tone="emerald" />
       </div>
 
       {/* Data Table */}

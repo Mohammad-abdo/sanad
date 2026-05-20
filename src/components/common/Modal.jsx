@@ -23,21 +23,29 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm"
+      onClick={onClose}
+      role="presentation"
+    >
       <div
-        className={`glass-strong rounded-3xl shadow-2xl w-full ${sizeClasses[size]} max-h-[90vh] overflow-y-auto border border-gray-200`}
+        className={`surface-card w-full ${sizeClasses[size]} max-h-[90vh] overflow-hidden rounded-2xl shadow-2xl dark:shadow-black/50`}
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
       >
-        <div className="sticky top-0 glass-header border-b border-gray-200 px-6 py-4 flex items-center justify-between backdrop-blur-md">
-          <h3 className="text-xl font-bold text-gray-900">{title}</h3>
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200/80 bg-white/95 px-6 py-4 backdrop-blur-md dark:border-slate-700 dark:bg-slate-900/95">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white">{title}</h3>
           <button
+            type="button"
             onClick={onClose}
-            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-all duration-300"
+            className="rounded-xl p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 dark:hover:bg-slate-800 dark:hover:text-white"
+            aria-label="إغلاق"
           >
             <X size={20} />
           </button>
         </div>
-        <div className="p-6">{children}</div>
+        <div className="overflow-y-auto p-6">{children}</div>
       </div>
     </div>
   );

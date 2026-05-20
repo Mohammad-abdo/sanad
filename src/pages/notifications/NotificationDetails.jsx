@@ -59,7 +59,7 @@ const NotificationDetails = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl">
+        <div className="surface-card p-8 rounded-2xl">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
           <div className="text-gray-700 font-medium">جاري التحميل...</div>
         </div>
@@ -70,7 +70,7 @@ const NotificationDetails = () => {
   if (error || !notification) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl text-center">
+        <div className="surface-card p-8 rounded-2xl text-center">
           <AlertCircle className="mx-auto text-red-500 mb-4" size={48} />
           <h3 className="text-xl font-bold text-gray-900 mb-2">الإشعار غير موجود</h3>
           <p className="text-gray-600 mb-4">لم يتم العثور على بيانات الإشعار</p>
@@ -101,7 +101,7 @@ const NotificationDetails = () => {
   const TypeIcon = typeConfig.icon;
 
   return (
-    <div className="space-y-6">
+    <div className="page-shell">
       {/* Header */}
       <div className="flex items-center justify-between">
         <button
@@ -136,7 +136,7 @@ const NotificationDetails = () => {
       </div>
 
       {/* Notification Header Card */}
-      <div className="glass-card rounded-2xl p-8 bg-white border border-primary-200">
+      <div className="surface-card rounded-2xl p-8 bg-white border border-primary-200">
         <div className="flex items-start gap-6">
           <div className={`w-32 h-32 rounded-2xl border-2 flex items-center justify-center shadow-2xl ${typeConfig.color}`}>
             <TypeIcon size={64} />
@@ -179,14 +179,14 @@ const NotificationDetails = () => {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className={`w-16 h-16 rounded-xl border-2 flex items-center justify-center mx-auto mb-3 ${typeConfig.color}`}>
             <TypeIcon size={28} />
           </div>
           <p className="text-3xl font-bold text-gray-900 mb-1">{typeConfig.label}</p>
           <p className="text-sm text-gray-500">نوع الإشعار</p>
         </div>
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className={`w-16 h-16 rounded-xl border-2 flex items-center justify-center mx-auto mb-3 ${
             notification.isRead 
               ? 'bg-gray-50 border-gray-200' 
@@ -203,7 +203,7 @@ const NotificationDetails = () => {
           </p>
           <p className="text-sm text-gray-500">الحالة</p>
         </div>
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className="w-16 h-16 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center mx-auto mb-3">
             <Calendar className="text-blue-600" size={28} />
           </div>
@@ -215,7 +215,7 @@ const NotificationDetails = () => {
           </p>
           <p className="text-sm text-gray-500">التاريخ</p>
         </div>
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className="w-16 h-16 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center mx-auto mb-3">
             <FileText className="text-purple-600" size={28} />
           </div>
@@ -228,7 +228,7 @@ const NotificationDetails = () => {
 
       {/* Notification Information */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
+        <div className="surface-card rounded-xl p-6 border border-gray-200">
           <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
             <Bell className="text-primary-600" size={20} />
             معلومات الإشعار
@@ -264,7 +264,7 @@ const NotificationDetails = () => {
           </div>
         </div>
 
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
+        <div className="surface-card rounded-xl p-6 border border-gray-200">
           <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
             <Calendar className="text-primary-600" size={20} />
             معلومات التاريخ والمستخدم
@@ -323,7 +323,7 @@ const NotificationDetails = () => {
       </div>
 
       {/* Message Display */}
-      <div className="glass-card rounded-xl p-6 border border-gray-200">
+      <div className="surface-card rounded-xl p-6 border border-gray-200">
         <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
           <FileText className="text-primary-600" size={20} />
           الرسالة
@@ -337,7 +337,7 @@ const NotificationDetails = () => {
 
       {/* Data Display */}
       {notification.data && (
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
+        <div className="surface-card rounded-xl p-6 border border-gray-200">
           <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
             <FileText className="text-primary-600" size={20} />
             البيانات الإضافية

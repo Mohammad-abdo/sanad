@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { admins } from '../../api/admin';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
+import { PageHeader, StatCard, Button, PageLoading, PageError } from '../../components/ui';
 import { useAuthStore } from '../../store/authStore';
 
 const Admins = () => {
@@ -162,16 +163,8 @@ const Admins = () => {
     );
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <div className="text-gray-700 font-medium">جاري التحميل...</div>
-        </div>
-      </div>
-    );
-  }
+  if (isLoading) return <PageLoading />;
+  if (error) return <PageError detail={error?.message} onRetry={() => refetch()} />;
 
   const adminsList = data?.data?.admins || [];
   const total = data?.data?.pagination?.total || adminsList.length;
@@ -326,71 +319,28 @@ const Admins = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">إدارة الأدمن</h2>
-          <p className="text-sm text-gray-500 mt-1">إدارة حسابات الأدمن في النظام</p>
-        </div>
-        <button
-          onClick={() => {
-            setEditingAdmin(null);
-            setShowModal(true);
-          }}
-          className="btn-primary flex items-center gap-2"
-        >
-          <Plus size={20} />
-          إضافة أدمن
-        </button>
-      </div>
+    <div className="page-shell">
+      <PageHeader
+        title="إدارة الأدمن"
+        description="إدارة حسابات الأدمن في النظام"
+        actions={
+          <Button
+            icon={Plus}
+            onClick={() => {
+              setEditingAdmin(null);
+              setShowModal(true);
+            }}
+          >
+            إضافة أدمن
+          </Button>
+        }
+      />
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-primary-50 border border-primary-200 flex items-center justify-center">
-              <Shield className="text-primary-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{total}</p>
-              <p className="text-xs text-gray-500">إجمالي الأدمن</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-green-50 border border-green-200 flex items-center justify-center">
-              <UserCheck className="text-green-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{activeCount}</p>
-              <p className="text-xs text-gray-500">أدمن نشط</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center">
-              <UserX className="text-red-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{inactiveCount}</p>
-              <p className="text-xs text-gray-500">أدمن معطل</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-purple-50 border border-purple-200 flex items-center justify-center">
-              <Shield className="text-purple-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{superAdminCount}</p>
-              <p className="text-xs text-gray-500">مدير عام</p>
-            </div>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard title="إجمالي الأدمن" value={total} icon={Shield} tone="violet" />
+        <StatCard title="أدمن نشط" value={activeCount} icon={UserCheck} tone="emerald" />
+        <StatCard title="أدمن معطل" value={inactiveCount} icon={UserX} tone="orange" />
+        <StatCard title="مدير عام" value={superAdminCount} icon={Shield} tone="fuchsia" />
       </div>
 
       {/* Data Table */}

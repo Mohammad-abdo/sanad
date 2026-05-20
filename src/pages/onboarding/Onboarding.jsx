@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { onboarding } from '../../api/admin';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
+import { PageHeader, StatCard, Button, PageLoading, PageError } from '../../components/ui';
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ const Onboarding = () => {
   const [page, setPage] = useState(1);
   const limit = 20;
 
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['onboarding', page],
     queryFn: async () => {
       const response = await onboarding.getAll({ page, limit });
@@ -58,6 +59,9 @@ const Onboarding = () => {
       toast.error(error.response?.data?.error?.message || 'فشل الحذف');
     },
   });
+
+  if (isLoading) return <PageLoading />;
+  if (error) return <PageError detail={error?.message} onRetry={() => refetch()} />;
 
   const onboardingList = data || [];
 
@@ -221,77 +225,28 @@ const Onboarding = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">إدارة التعريف (Onboarding)</h2>
-          <p className="text-sm text-gray-500 mt-1">إدارة شاشات التعريف للمستخدمين</p>
-        </div>
-        <button
-          onClick={() => {
-            setEditingItem(null);
-            setShowModal(true);
-          }}
-          className="btn-primary flex items-center gap-2"
-        >
-          <Plus size={20} />
-          إضافة عنصر جديد
-        </button>
-      </div>
+    <div className="page-shell">
+      <PageHeader
+        title="إدارة التعريف (Onboarding)"
+        description="إدارة شاشات التعريف للمستخدمين"
+        actions={
+          <Button
+            icon={Plus}
+            onClick={() => {
+              setEditingItem(null);
+              setShowModal(true);
+            }}
+          >
+            إضافة عنصر جديد
+          </Button>
+        }
+      />
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-primary-50 border border-primary-200 flex items-center justify-center">
-              <FileText className="text-primary-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{onboardingList.length}</p>
-              <p className="text-xs text-gray-500">إجمالي العناصر</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-green-50 border border-green-200 flex items-center justify-center">
-              <CheckCircle className="text-green-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                {onboardingList.filter(i => i.isActive).length}
-              </p>
-              <p className="text-xs text-gray-500">عناصر نشطة</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center">
-              <Globe className="text-blue-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                {onboardingList.filter(i => i.platform === 'ALL').length}
-              </p>
-              <p className="text-xs text-gray-500">لجميع المنصات</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-purple-50 border border-purple-200 flex items-center justify-center">
-              <Smartphone className="text-purple-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                {onboardingList.filter(i => i.platform === 'MOBILE').length}
-              </p>
-              <p className="text-xs text-gray-500">للموبايل فقط</p>
-            </div>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard title="إجمالي العناصر" value={onboardingList.length} icon={FileText} tone="violet" />
+        <StatCard title="عناصر نشطة" value={onboardingList.filter(i => i.isActive).length} icon={CheckCircle} tone="emerald" />
+        <StatCard title="لجميع المنصات" value={onboardingList.filter(i => i.platform === 'ALL').length} icon={Globe} tone="sky" />
+        <StatCard title="للموبايل فقط" value={onboardingList.filter(i => i.platform === 'MOBILE').length} icon={Smartphone} tone="fuchsia" />
       </div>
 
       {/* Data Table */}

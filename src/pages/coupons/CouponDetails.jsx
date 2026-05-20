@@ -78,7 +78,7 @@ const CouponDetails = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl">
+        <div className="surface-card p-8 rounded-2xl">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
           <div className="text-gray-700 font-medium">جاري التحميل...</div>
         </div>
@@ -89,7 +89,7 @@ const CouponDetails = () => {
   if (error || !coupon) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl text-center">
+        <div className="surface-card p-8 rounded-2xl text-center">
           <AlertCircle className="mx-auto text-red-500 mb-4" size={48} />
           <h3 className="text-xl font-bold text-gray-900 mb-2">الكوبون غير موجود</h3>
           <p className="text-gray-600 mb-4">لم يتم العثور على بيانات الكوبون</p>
@@ -112,7 +112,7 @@ const CouponDetails = () => {
   const usagePercentage = usageLimit ? (usedCount / usageLimit) * 100 : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="page-shell">
       {/* Header */}
       <div className="flex items-center justify-between">
         <button
@@ -166,7 +166,7 @@ const CouponDetails = () => {
       </div>
 
       {/* Coupon Header Card */}
-      <div className="glass-card rounded-2xl p-8 bg-white border border-primary-200">
+      <div className="surface-card rounded-2xl p-8 bg-white border border-primary-200">
         <div className="flex items-start gap-6">
           <div className={`w-32 h-32 rounded-2xl border-2 flex items-center justify-center shadow-2xl ${
             coupon.type === 'PERCENTAGE' 
@@ -223,7 +223,7 @@ const CouponDetails = () => {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className={`w-16 h-16 rounded-xl border-2 flex items-center justify-center mx-auto mb-3 ${
             coupon.type === 'PERCENTAGE' 
               ? 'bg-blue-50 border-blue-200' 
@@ -240,14 +240,14 @@ const CouponDetails = () => {
           </p>
           <p className="text-sm text-gray-500">قيمة الخصم</p>
         </div>
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className="w-16 h-16 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center mx-auto mb-3">
             <TrendingUp className="text-purple-600" size={28} />
           </div>
           <p className="text-3xl font-bold text-gray-900 mb-1">{usedCount}</p>
           <p className="text-sm text-gray-500">عدد الاستخدامات</p>
         </div>
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className="w-16 h-16 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center mx-auto mb-3">
             <FileText className="text-gray-600" size={28} />
           </div>
@@ -256,7 +256,7 @@ const CouponDetails = () => {
           </p>
           <p className="text-sm text-gray-500">حد الاستخدام</p>
         </div>
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className={`w-16 h-16 rounded-xl border-2 flex items-center justify-center mx-auto mb-3 ${
             isActive 
               ? 'bg-green-50 border-green-200' 
@@ -281,7 +281,7 @@ const CouponDetails = () => {
 
       {/* Coupon Information */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
+        <div className="surface-card rounded-xl p-6 border border-gray-200">
           <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
             <Ticket className="text-primary-600" size={20} />
             معلومات الكوبون
@@ -330,7 +330,7 @@ const CouponDetails = () => {
           </div>
         </div>
 
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
+        <div className="surface-card rounded-xl p-6 border border-gray-200">
           <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
             <Calendar className="text-primary-600" size={20} />
             معلومات التاريخ والاستخدام
@@ -378,7 +378,7 @@ const CouponDetails = () => {
 
       {/* Usage Statistics */}
       {usageLimit && (
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
+        <div className="surface-card rounded-xl p-6 border border-gray-200">
           <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
             <TrendingUp className="text-primary-600" size={20} />
             إحصائيات الاستخدام

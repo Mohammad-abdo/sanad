@@ -32,7 +32,7 @@ const OnboardingDetails = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl">
+        <div className="surface-card p-8 rounded-2xl">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
           <div className="text-gray-700 font-medium">جاري التحميل...</div>
         </div>
@@ -43,7 +43,7 @@ const OnboardingDetails = () => {
   if (error || !item) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl text-center">
+        <div className="surface-card p-8 rounded-2xl text-center">
           <AlertCircle className="mx-auto text-red-500 mb-4" size={48} />
           <h3 className="text-xl font-bold text-gray-900 mb-2">عنصر التعريف غير موجود</h3>
           <p className="text-gray-600 mb-4">لم يتم العثور على بيانات عنصر التعريف</p>
@@ -68,7 +68,7 @@ const OnboardingDetails = () => {
   const PlatformIcon = config.icon;
 
   return (
-    <div className="space-y-6">
+    <div className="page-shell">
       {/* Header */}
       <div className="flex items-center justify-between">
         <button
@@ -93,7 +93,7 @@ const OnboardingDetails = () => {
       </div>
 
       {/* Onboarding Header Card */}
-      <div className="glass-card rounded-2xl p-8 bg-white border border-primary-200">
+      <div className="surface-card rounded-2xl p-8 bg-white border border-primary-200">
         <div className="flex items-start gap-6">
           {item.image ? (
             <div className="w-48 h-48 rounded-2xl border-2 border-primary-500 overflow-hidden shadow-2xl flex-shrink-0">
@@ -151,21 +151,21 @@ const OnboardingDetails = () => {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className="w-16 h-16 rounded-xl bg-primary-50 border border-primary-200 flex items-center justify-center mx-auto mb-3">
             <span className="text-primary-600 font-bold text-2xl">{item.order}</span>
           </div>
           <p className="text-3xl font-bold text-gray-900 mb-1">الترتيب</p>
           <p className="text-sm text-gray-500">في القائمة</p>
         </div>
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className={`w-16 h-16 rounded-xl border-2 flex items-center justify-center mx-auto mb-3 ${config.color}`}>
             <PlatformIcon size={28} />
           </div>
           <p className="text-3xl font-bold text-gray-900 mb-1">{config.label}</p>
           <p className="text-sm text-gray-500">المنصة</p>
         </div>
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className={`w-16 h-16 rounded-xl border-2 flex items-center justify-center mx-auto mb-3 ${
             item.isActive 
               ? 'bg-green-50 border-green-200' 
@@ -182,7 +182,7 @@ const OnboardingDetails = () => {
           </p>
           <p className="text-sm text-gray-500">الحالة</p>
         </div>
-        <div className="glass-card rounded-xl p-6 text-center border border-gray-200">
+        <div className="surface-card rounded-xl p-6 text-center border border-gray-200">
           <div className="w-16 h-16 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center mx-auto mb-3">
             <FileText className="text-blue-600" size={28} />
           </div>
@@ -195,7 +195,7 @@ const OnboardingDetails = () => {
 
       {/* Content Information */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
+        <div className="surface-card rounded-xl p-6 border border-gray-200">
           <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
             <FileText className="text-primary-600" size={20} />
             معلومات المحتوى
@@ -234,7 +234,7 @@ const OnboardingDetails = () => {
           </div>
         </div>
 
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
+        <div className="surface-card rounded-xl p-6 border border-gray-200">
           <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
             <Calendar className="text-primary-600" size={20} />
             معلومات التاريخ والإعدادات
@@ -287,7 +287,7 @@ const OnboardingDetails = () => {
 
       {/* Image Display */}
       {item.image && (
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
+        <div className="surface-card rounded-xl p-6 border border-gray-200">
           <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
             <Image className="text-primary-600" size={20} />
             الصورة

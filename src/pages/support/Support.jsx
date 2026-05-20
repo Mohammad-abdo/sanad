@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { support } from '../../api/admin';
 import DataTable from '../../components/common/DataTable';
+import { PageHeader, StatCard, PageLoading, PageError } from '../../components/ui';
 import toast from 'react-hot-toast';
 
 const Support = () => {
@@ -34,30 +35,8 @@ const Support = () => {
     },
   });
 
-  if (isLoading && !data) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <div className="text-gray-700 font-medium">جاري التحميل...</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="glass-card p-8 rounded-2xl text-center">
-          <AlertCircle className="mx-auto text-red-500 mb-4" size={48} />
-          <p className="text-red-600 mb-4">خطأ في تحميل البيانات</p>
-          <button onClick={() => refetch()} className="btn-primary">
-            إعادة المحاولة
-          </button>
-        </div>
-      </div>
-    );
-  }
+  if (isLoading && !data) return <PageLoading />;
+  if (error) return <PageError onRetry={() => refetch()} />;
 
   const ticketsList = data?.data?.tickets || data?.tickets || [];
   const total = data?.data?.pagination?.total || data?.pagination?.total || ticketsList.length;
@@ -214,72 +193,15 @@ const Support = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">تذاكر الدعم</h2>
-          <p className="text-sm text-gray-500 mt-1">إدارة جميع تذاكر الدعم الفني</p>
-        </div>
-      </div>
+    <div className="page-shell">
+      <PageHeader title="تذاكر الدعم" description="إدارة جميع تذاكر الدعم الفني" />
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-primary-50 border border-primary-200 flex items-center justify-center">
-              <Headphones className="text-primary-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{total}</p>
-              <p className="text-xs text-gray-500">إجمالي التذاكر</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center">
-              <AlertCircle className="text-blue-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{openCount}</p>
-              <p className="text-xs text-gray-500">مفتوحة</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-yellow-50 border border-yellow-200 flex items-center justify-center">
-              <Clock className="text-yellow-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{inProgressCount}</p>
-              <p className="text-xs text-gray-500">قيد المعالجة</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-green-50 border border-green-200 flex items-center justify-center">
-              <CheckCircle className="text-green-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{resolvedCount}</p>
-              <p className="text-xs text-gray-500">محلولة</p>
-            </div>
-          </div>
-        </div>
-        <div className="glass-card rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center">
-              <AlertCircle className="text-red-600" size={24} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{urgentCount}</p>
-              <p className="text-xs text-gray-500">عاجلة</p>
-            </div>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <StatCard title="إجمالي التذاكر" value={total} icon={Headphones} tone="violet" />
+        <StatCard title="مفتوحة" value={openCount} icon={AlertCircle} tone="sky" />
+        <StatCard title="قيد المعالجة" value={inProgressCount} icon={Clock} tone="amber" />
+        <StatCard title="محلولة" value={resolvedCount} icon={CheckCircle} tone="emerald" />
+        <StatCard title="عاجلة" value={urgentCount} icon={AlertCircle} tone="orange" />
       </div>
 
       {/* Data Table */}

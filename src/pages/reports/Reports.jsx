@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { reports } from '../../api/admin';
+import { downloadReportFile } from '../../utils/downloadReport';
 import { FileBarChart, Download, Plus, Loader2, Eye, Trash2, Calendar, User, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
+import { PageHeader, Button } from '../../components/ui';
 
 const Reports = () => {
   const navigate = useNavigate();
@@ -147,22 +149,15 @@ const Reports = () => {
       label: 'تحميل',
       icon: Download,
       onClick: async (row) => {
-        if (row.status === 'COMPLETED') {
-          try {
-            const response = await reports.download(row.id);
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `report-${row.name}-${new Date().toISOString().split('T')[0]}.${row.format?.toLowerCase() || 'pdf'}`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            toast.success('تم تحميل التقرير');
-          } catch (error) {
-            toast.error('فشل التحميل');
-          }
-        } else {
+        if (row.status !== 'COMPLETED') {
           toast.error('التقرير غير جاهز للتحميل');
+          return;
+        }
+        try {
+          await downloadReportFile(row);
+          toast.success('تم تحميل التقرير');
+        } catch (error) {
+          toast.error(error.message || 'فشل التحميل');
         }
       },
       className: 'text-green-600 hover:bg-green-50',
@@ -181,20 +176,12 @@ const Reports = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">التقارير</h2>
-          <p className="text-sm text-gray-500 mt-1">إدارة جميع التقارير المولدة</p>
-        </div>
-        <button
-          onClick={() => setShowGenerateModal(true)}
-          className="btn-primary flex items-center gap-2"
-        >
-          <Plus size={20} />
-          إنشاء تقرير
-        </button>
-      </div>
+    <div className="page-shell">
+      <PageHeader
+        title="التقارير"
+        description="إدارة جميع التقارير المولدة"
+        actions={<Button icon={Plus} onClick={() => setShowGenerateModal(true)}>إنشاء تقرير</Button>}
+      />
 
       <DataTable
         data={reportsList}

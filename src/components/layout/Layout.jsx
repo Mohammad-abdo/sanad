@@ -377,38 +377,38 @@ const Layout = ({ children = null }) => {
         }`}
       >
         {/* Header */}
-        <header className="glass-header relative z-50 overflow-visible px-6 py-4">
+        <header className="relative z-50 overflow-visible border-b border-slate-200/80 bg-white/90 px-4 py-3 backdrop-blur-xl dark:border-slate-700/60 dark:bg-slate-900/90 sm:px-6 sm:py-4">
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
+            <div className="flex min-w-0 items-center gap-3">
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(true)}
-                className="md:hidden rounded-xl border border-gray-200 p-2 text-gray-700 transition-all duration-300 hover:border-primary-200 hover:bg-gray-50 hover:text-primary-600 dark:border-slate-600 dark:text-slate-200 dark:hover:border-primary-500/40 dark:hover:bg-slate-800/80 dark:hover:text-primary-300"
-                aria-label="Open menu"
+                className="rounded-xl border border-slate-200 p-2 text-slate-700 transition-colors hover:border-primary-300 hover:bg-slate-50 hover:text-primary-600 md:hidden dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
+                aria-label="فتح القائمة"
               >
                 <Menu size={20} />
               </button>
               <div className="min-w-0">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white sm:text-xl">
                 {menuItems.find(
                   (item) =>
                     location.pathname === item.path ||
                     (item.path !== '/dashboard' && location.pathname.startsWith(`${item.path}/`))
                 )?.label || 'لوحة التحكم'}
               </h2>
-              <p className="mt-1 text-xs sm:text-sm text-gray-600 dark:text-slate-400 truncate">
+              <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400 sm:text-sm">
                 {new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               </p>
             </div>
             </div>
-            <div className="relative z-50 flex items-center gap-3 overflow-visible sm:gap-4">
+            <div className="relative z-50 flex items-center gap-2 overflow-visible sm:gap-3">
               {/* Search */}
-              <div className="relative hidden md:block">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400 dark:text-slate-500" size={18} />
+              <div className="relative hidden lg:block">
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                 <input
                   type="text"
-                  placeholder="بحث..."
-                  className="input w-64 py-2 pl-10 pr-10"
+                  placeholder="بحث سريع..."
+                  className="input-sm w-56 !pe-9"
                 />
               </div>
 
@@ -595,7 +595,7 @@ const Layout = ({ children = null }) => {
         </header>
 
         {/* Page Content — max width for readability; horizontal scroll for wide tables inside */}
-        <main className="relative z-0 min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-gradient-to-b from-slate-100/80 via-transparent to-transparent p-3 sm:p-5 lg:px-10 lg:py-8 dark:from-slate-950/60">
+        <main className="relative z-0 min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-slate-50/50 p-3 sm:p-5 lg:px-8 lg:py-7 dark:bg-slate-950/80">
           <div className="relative mx-auto w-full min-h-[50vh] max-w-[min(100%,1600px)]">
             {children || <Outlet />}
           </div>
